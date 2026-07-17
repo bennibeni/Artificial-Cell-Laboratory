@@ -1,0 +1,1341 @@
+{
+  "schemaVersion": "0.2.0",
+  "project": "Artificial Cell Model",
+  "database": "PF8 Mathematical Database",
+  "createdAt": "2026-06-29T03:59:30.563Z",
+  "metadata": {
+    "organismType": "human",
+    "cellTypeKey": "staminale",
+    "convention": "non espresso/silenziato -> bit 0",
+    "fullDatabase": true
+  },
+  "genomeSpace": {
+    "theoreticalCardinality": 43046721,
+    "processed": 43046721,
+    "valid": 43046721,
+    "invalid": 0
+  },
+  "pf8": {
+    "counts": [
+      [
+        746496,
+        373248,
+        373248,
+        186624,
+        933120,
+        466560,
+        466560,
+        233280
+      ],
+      [
+        933120,
+        466560,
+        466560,
+        233280,
+        1166400,
+        583200,
+        583200,
+        291600
+      ],
+      [
+        933120,
+        466560,
+        466560,
+        233280,
+        1166400,
+        583200,
+        583200,
+        291600
+      ],
+      [
+        1166400,
+        583200,
+        583200,
+        291600,
+        1458000,
+        729000,
+        729000,
+        364500
+      ],
+      [
+        933120,
+        466560,
+        466560,
+        233280,
+        1166400,
+        583200,
+        583200,
+        291600
+      ],
+      [
+        1166400,
+        583200,
+        583200,
+        291600,
+        1458000,
+        729000,
+        729000,
+        364500
+      ],
+      [
+        1166400,
+        583200,
+        583200,
+        291600,
+        1458000,
+        729000,
+        729000,
+        364500
+      ],
+      [
+        1458000,
+        729000,
+        729000,
+        364500,
+        1822500,
+        911250,
+        911250,
+        455625
+      ]
+    ],
+    "byCode": {
+      "100000": 933120,
+      "100001": 466560,
+      "100010": 466560,
+      "100011": 233280,
+      "100100": 1166400,
+      "100101": 583200,
+      "100110": 583200,
+      "100111": 291600,
+      "101000": 1166400,
+      "101001": 583200,
+      "101010": 583200,
+      "101011": 291600,
+      "101100": 1458000,
+      "101101": 729000,
+      "101110": 729000,
+      "101111": 364500,
+      "110000": 1166400,
+      "110001": 583200,
+      "110010": 583200,
+      "110011": 291600,
+      "110100": 1458000,
+      "110101": 729000,
+      "110110": 729000,
+      "110111": 364500,
+      "111000": 1458000,
+      "111001": 729000,
+      "111010": 729000,
+      "111011": 364500,
+      "111100": 1822500,
+      "111101": 911250,
+      "111110": 911250,
+      "111111": 455625,
+      "000000": 746496,
+      "000001": 373248,
+      "000010": 373248,
+      "000011": 186624,
+      "000100": 933120,
+      "000101": 466560,
+      "000110": 466560,
+      "000111": 233280,
+      "001000": 933120,
+      "001001": 466560,
+      "001010": 466560,
+      "001011": 233280,
+      "001100": 1166400,
+      "001101": 583200,
+      "001110": 583200,
+      "001111": 291600,
+      "010000": 933120,
+      "010001": 466560,
+      "010010": 466560,
+      "010011": 233280,
+      "010100": 1166400,
+      "010101": 583200,
+      "010110": 583200,
+      "010111": 291600,
+      "011000": 1166400,
+      "011001": 583200,
+      "011010": 583200,
+      "011011": 291600,
+      "011100": 1458000,
+      "011101": 729000,
+      "011110": 729000,
+      "011111": 364500
+    },
+    "sumCounts": 43046721
+  },
+  "statistics": {
+    "total": 43046721,
+    "mean": 672605.015625,
+    "variance": 134213919362.7339,
+    "standardDeviation": 366352.1794158374,
+    "entropy": 5.800895907461867,
+    "max": {
+      "row": 7,
+      "col": 4,
+      "code": "111100",
+      "count": 1822500
+    },
+    "min": {
+      "row": 0,
+      "col": 3,
+      "code": "000011",
+      "count": 186624
+    },
+    "top10": [
+      {
+        "row": 7,
+        "col": 4,
+        "code": "111100",
+        "count": 1822500
+      },
+      {
+        "row": 3,
+        "col": 4,
+        "code": "011100",
+        "count": 1458000
+      },
+      {
+        "row": 5,
+        "col": 4,
+        "code": "101100",
+        "count": 1458000
+      },
+      {
+        "row": 6,
+        "col": 4,
+        "code": "110100",
+        "count": 1458000
+      },
+      {
+        "row": 7,
+        "col": 0,
+        "code": "111000",
+        "count": 1458000
+      },
+      {
+        "row": 1,
+        "col": 4,
+        "code": "001100",
+        "count": 1166400
+      },
+      {
+        "row": 2,
+        "col": 4,
+        "code": "010100",
+        "count": 1166400
+      },
+      {
+        "row": 3,
+        "col": 0,
+        "code": "011000",
+        "count": 1166400
+      },
+      {
+        "row": 4,
+        "col": 4,
+        "code": "100100",
+        "count": 1166400
+      },
+      {
+        "row": 5,
+        "col": 0,
+        "code": "101000",
+        "count": 1166400
+      }
+    ],
+    "bottom10": [
+      {
+        "row": 0,
+        "col": 3,
+        "code": "000011",
+        "count": 186624
+      },
+      {
+        "row": 4,
+        "col": 3,
+        "code": "100011",
+        "count": 233280
+      },
+      {
+        "row": 2,
+        "col": 3,
+        "code": "010011",
+        "count": 233280
+      },
+      {
+        "row": 1,
+        "col": 3,
+        "code": "001011",
+        "count": 233280
+      },
+      {
+        "row": 0,
+        "col": 7,
+        "code": "000111",
+        "count": 233280
+      },
+      {
+        "row": 6,
+        "col": 3,
+        "code": "110011",
+        "count": 291600
+      },
+      {
+        "row": 5,
+        "col": 3,
+        "code": "101011",
+        "count": 291600
+      },
+      {
+        "row": 4,
+        "col": 7,
+        "code": "100111",
+        "count": 291600
+      },
+      {
+        "row": 3,
+        "col": 3,
+        "code": "011011",
+        "count": 291600
+      },
+      {
+        "row": 2,
+        "col": 7,
+        "code": "010111",
+        "count": 291600
+      }
+    ]
+  },
+  "geometry": {
+    "total": 43046721,
+    "matrix": [
+      [
+        746496,
+        373248,
+        373248,
+        186624,
+        933120,
+        466560,
+        466560,
+        233280
+      ],
+      [
+        933120,
+        466560,
+        466560,
+        233280,
+        1166400,
+        583200,
+        583200,
+        291600
+      ],
+      [
+        933120,
+        466560,
+        466560,
+        233280,
+        1166400,
+        583200,
+        583200,
+        291600
+      ],
+      [
+        1166400,
+        583200,
+        583200,
+        291600,
+        1458000,
+        729000,
+        729000,
+        364500
+      ],
+      [
+        933120,
+        466560,
+        466560,
+        233280,
+        1166400,
+        583200,
+        583200,
+        291600
+      ],
+      [
+        1166400,
+        583200,
+        583200,
+        291600,
+        1458000,
+        729000,
+        729000,
+        364500
+      ],
+      [
+        1166400,
+        583200,
+        583200,
+        291600,
+        1458000,
+        729000,
+        729000,
+        364500
+      ],
+      [
+        1458000,
+        729000,
+        729000,
+        364500,
+        1822500,
+        911250,
+        911250,
+        455625
+      ]
+    ],
+    "symmetries": {
+      "identity": {
+        "exact": true,
+        "mismatches": 0,
+        "absSum": 0,
+        "maxAbs": 0,
+        "maxAt": null,
+        "normalizedAsymmetry": 0,
+        "symmetryScore": 1,
+        "examples": []
+      },
+      "rotate90": {
+        "exact": false,
+        "mismatches": 64,
+        "absSum": 26191512,
+        "maxAbs": 1458000,
+        "maxAt": {
+          "row": 7,
+          "col": 4,
+          "code": "111100",
+          "original": 1822500,
+          "transformed": 364500,
+          "diff": 1458000
+        },
+        "normalizedAsymmetry": 0.3042219173906417,
+        "symmetryScore": 0.6957780826093583,
+        "examples": [
+          {
+            "row": 0,
+            "col": 0,
+            "code": "000000",
+            "original": 746496,
+            "transformed": 1458000,
+            "diff": -711504
+          },
+          {
+            "row": 0,
+            "col": 1,
+            "code": "000001",
+            "original": 373248,
+            "transformed": 1166400,
+            "diff": -793152
+          },
+          {
+            "row": 0,
+            "col": 2,
+            "code": "000010",
+            "original": 373248,
+            "transformed": 1166400,
+            "diff": -793152
+          },
+          {
+            "row": 0,
+            "col": 3,
+            "code": "000011",
+            "original": 186624,
+            "transformed": 933120,
+            "diff": -746496
+          },
+          {
+            "row": 0,
+            "col": 4,
+            "code": "000100",
+            "original": 933120,
+            "transformed": 1166400,
+            "diff": -233280
+          },
+          {
+            "row": 0,
+            "col": 5,
+            "code": "000101",
+            "original": 466560,
+            "transformed": 933120,
+            "diff": -466560
+          },
+          {
+            "row": 0,
+            "col": 6,
+            "code": "000110",
+            "original": 466560,
+            "transformed": 933120,
+            "diff": -466560
+          },
+          {
+            "row": 0,
+            "col": 7,
+            "code": "000111",
+            "original": 233280,
+            "transformed": 746496,
+            "diff": -513216
+          },
+          {
+            "row": 1,
+            "col": 0,
+            "code": "001000",
+            "original": 933120,
+            "transformed": 729000,
+            "diff": 204120
+          },
+          {
+            "row": 1,
+            "col": 1,
+            "code": "001001",
+            "original": 466560,
+            "transformed": 583200,
+            "diff": -116640
+          }
+        ]
+      },
+      "rotate180": {
+        "exact": false,
+        "mismatches": 52,
+        "absSum": 35048862,
+        "maxAbs": 1635876,
+        "maxAt": {
+          "row": 0,
+          "col": 3,
+          "code": "000011",
+          "original": 186624,
+          "transformed": 1822500,
+          "diff": -1635876
+        },
+        "normalizedAsymmetry": 0.40710257582685566,
+        "symmetryScore": 0.5928974241731444,
+        "examples": [
+          {
+            "row": 0,
+            "col": 0,
+            "code": "000000",
+            "original": 746496,
+            "transformed": 455625,
+            "diff": 290871
+          },
+          {
+            "row": 0,
+            "col": 1,
+            "code": "000001",
+            "original": 373248,
+            "transformed": 911250,
+            "diff": -538002
+          },
+          {
+            "row": 0,
+            "col": 2,
+            "code": "000010",
+            "original": 373248,
+            "transformed": 911250,
+            "diff": -538002
+          },
+          {
+            "row": 0,
+            "col": 3,
+            "code": "000011",
+            "original": 186624,
+            "transformed": 1822500,
+            "diff": -1635876
+          },
+          {
+            "row": 0,
+            "col": 4,
+            "code": "000100",
+            "original": 933120,
+            "transformed": 364500,
+            "diff": 568620
+          },
+          {
+            "row": 0,
+            "col": 5,
+            "code": "000101",
+            "original": 466560,
+            "transformed": 729000,
+            "diff": -262440
+          },
+          {
+            "row": 0,
+            "col": 6,
+            "code": "000110",
+            "original": 466560,
+            "transformed": 729000,
+            "diff": -262440
+          },
+          {
+            "row": 0,
+            "col": 7,
+            "code": "000111",
+            "original": 233280,
+            "transformed": 1458000,
+            "diff": -1224720
+          },
+          {
+            "row": 1,
+            "col": 0,
+            "code": "001000",
+            "original": 933120,
+            "transformed": 364500,
+            "diff": 568620
+          },
+          {
+            "row": 1,
+            "col": 1,
+            "code": "001001",
+            "original": 466560,
+            "transformed": 729000,
+            "diff": -262440
+          }
+        ]
+      },
+      "rotate270": {
+        "exact": false,
+        "mismatches": 64,
+        "absSum": 26191512,
+        "maxAbs": 1458000,
+        "maxAt": {
+          "row": 3,
+          "col": 7,
+          "code": "011111",
+          "original": 364500,
+          "transformed": 1822500,
+          "diff": -1458000
+        },
+        "normalizedAsymmetry": 0.3042219173906417,
+        "symmetryScore": 0.6957780826093583,
+        "examples": [
+          {
+            "row": 0,
+            "col": 0,
+            "code": "000000",
+            "original": 746496,
+            "transformed": 233280,
+            "diff": 513216
+          },
+          {
+            "row": 0,
+            "col": 1,
+            "code": "000001",
+            "original": 373248,
+            "transformed": 291600,
+            "diff": 81648
+          },
+          {
+            "row": 0,
+            "col": 2,
+            "code": "000010",
+            "original": 373248,
+            "transformed": 291600,
+            "diff": 81648
+          },
+          {
+            "row": 0,
+            "col": 3,
+            "code": "000011",
+            "original": 186624,
+            "transformed": 364500,
+            "diff": -177876
+          },
+          {
+            "row": 0,
+            "col": 4,
+            "code": "000100",
+            "original": 933120,
+            "transformed": 291600,
+            "diff": 641520
+          },
+          {
+            "row": 0,
+            "col": 5,
+            "code": "000101",
+            "original": 466560,
+            "transformed": 364500,
+            "diff": 102060
+          },
+          {
+            "row": 0,
+            "col": 6,
+            "code": "000110",
+            "original": 466560,
+            "transformed": 364500,
+            "diff": 102060
+          },
+          {
+            "row": 0,
+            "col": 7,
+            "code": "000111",
+            "original": 233280,
+            "transformed": 455625,
+            "diff": -222345
+          },
+          {
+            "row": 1,
+            "col": 0,
+            "code": "001000",
+            "original": 933120,
+            "transformed": 466560,
+            "diff": 466560
+          },
+          {
+            "row": 1,
+            "col": 1,
+            "code": "001001",
+            "original": 466560,
+            "transformed": 583200,
+            "diff": -116640
+          }
+        ]
+      },
+      "reflectHorizontal": {
+        "exact": false,
+        "mismatches": 64,
+        "absSum": 14289858,
+        "maxAbs": 889380,
+        "maxAt": {
+          "row": 0,
+          "col": 4,
+          "code": "000100",
+          "original": 933120,
+          "transformed": 1822500,
+          "diff": -889380
+        },
+        "normalizedAsymmetry": 0.16598079561042525,
+        "symmetryScore": 0.8340192043895748,
+        "examples": [
+          {
+            "row": 0,
+            "col": 0,
+            "code": "000000",
+            "original": 746496,
+            "transformed": 1458000,
+            "diff": -711504
+          },
+          {
+            "row": 0,
+            "col": 1,
+            "code": "000001",
+            "original": 373248,
+            "transformed": 729000,
+            "diff": -355752
+          },
+          {
+            "row": 0,
+            "col": 2,
+            "code": "000010",
+            "original": 373248,
+            "transformed": 729000,
+            "diff": -355752
+          },
+          {
+            "row": 0,
+            "col": 3,
+            "code": "000011",
+            "original": 186624,
+            "transformed": 364500,
+            "diff": -177876
+          },
+          {
+            "row": 0,
+            "col": 4,
+            "code": "000100",
+            "original": 933120,
+            "transformed": 1822500,
+            "diff": -889380
+          },
+          {
+            "row": 0,
+            "col": 5,
+            "code": "000101",
+            "original": 466560,
+            "transformed": 911250,
+            "diff": -444690
+          },
+          {
+            "row": 0,
+            "col": 6,
+            "code": "000110",
+            "original": 466560,
+            "transformed": 911250,
+            "diff": -444690
+          },
+          {
+            "row": 0,
+            "col": 7,
+            "code": "000111",
+            "original": 233280,
+            "transformed": 455625,
+            "diff": -222345
+          },
+          {
+            "row": 1,
+            "col": 0,
+            "code": "001000",
+            "original": 933120,
+            "transformed": 1166400,
+            "diff": -233280
+          },
+          {
+            "row": 1,
+            "col": 1,
+            "code": "001001",
+            "original": 466560,
+            "transformed": 583200,
+            "diff": -116640
+          }
+        ]
+      },
+      "reflectVertical": {
+        "exact": false,
+        "mismatches": 64,
+        "absSum": 32949342,
+        "maxAbs": 1458000,
+        "maxAt": {
+          "row": 7,
+          "col": 3,
+          "code": "111011",
+          "original": 364500,
+          "transformed": 1822500,
+          "diff": -1458000
+        },
+        "normalizedAsymmetry": 0.38271604938271603,
+        "symmetryScore": 0.617283950617284,
+        "examples": [
+          {
+            "row": 0,
+            "col": 0,
+            "code": "000000",
+            "original": 746496,
+            "transformed": 233280,
+            "diff": 513216
+          },
+          {
+            "row": 0,
+            "col": 1,
+            "code": "000001",
+            "original": 373248,
+            "transformed": 466560,
+            "diff": -93312
+          },
+          {
+            "row": 0,
+            "col": 2,
+            "code": "000010",
+            "original": 373248,
+            "transformed": 466560,
+            "diff": -93312
+          },
+          {
+            "row": 0,
+            "col": 3,
+            "code": "000011",
+            "original": 186624,
+            "transformed": 933120,
+            "diff": -746496
+          },
+          {
+            "row": 0,
+            "col": 4,
+            "code": "000100",
+            "original": 933120,
+            "transformed": 186624,
+            "diff": 746496
+          },
+          {
+            "row": 0,
+            "col": 5,
+            "code": "000101",
+            "original": 466560,
+            "transformed": 373248,
+            "diff": 93312
+          },
+          {
+            "row": 0,
+            "col": 6,
+            "code": "000110",
+            "original": 466560,
+            "transformed": 373248,
+            "diff": 93312
+          },
+          {
+            "row": 0,
+            "col": 7,
+            "code": "000111",
+            "original": 233280,
+            "transformed": 746496,
+            "diff": -513216
+          },
+          {
+            "row": 1,
+            "col": 0,
+            "code": "001000",
+            "original": 933120,
+            "transformed": 291600,
+            "diff": 641520
+          },
+          {
+            "row": 1,
+            "col": 1,
+            "code": "001001",
+            "original": 466560,
+            "transformed": 583200,
+            "diff": -116640
+          }
+        ]
+      },
+      "reflectMainDiagonal": {
+        "exact": false,
+        "mismatches": 40,
+        "absSum": 28343520,
+        "maxAbs": 1530900,
+        "maxAt": {
+          "row": 4,
+          "col": 7,
+          "code": "100111",
+          "original": 291600,
+          "transformed": 1822500,
+          "diff": -1530900
+        },
+        "normalizedAsymmetry": 0.3292181069958848,
+        "symmetryScore": 0.6707818930041152,
+        "examples": [
+          {
+            "row": 0,
+            "col": 1,
+            "code": "000001",
+            "original": 373248,
+            "transformed": 933120,
+            "diff": -559872
+          },
+          {
+            "row": 0,
+            "col": 2,
+            "code": "000010",
+            "original": 373248,
+            "transformed": 933120,
+            "diff": -559872
+          },
+          {
+            "row": 0,
+            "col": 3,
+            "code": "000011",
+            "original": 186624,
+            "transformed": 1166400,
+            "diff": -979776
+          },
+          {
+            "row": 0,
+            "col": 5,
+            "code": "000101",
+            "original": 466560,
+            "transformed": 1166400,
+            "diff": -699840
+          },
+          {
+            "row": 0,
+            "col": 6,
+            "code": "000110",
+            "original": 466560,
+            "transformed": 1166400,
+            "diff": -699840
+          },
+          {
+            "row": 0,
+            "col": 7,
+            "code": "000111",
+            "original": 233280,
+            "transformed": 1458000,
+            "diff": -1224720
+          },
+          {
+            "row": 1,
+            "col": 0,
+            "code": "001000",
+            "original": 933120,
+            "transformed": 373248,
+            "diff": 559872
+          },
+          {
+            "row": 1,
+            "col": 3,
+            "code": "001011",
+            "original": 233280,
+            "transformed": 583200,
+            "diff": -349920
+          },
+          {
+            "row": 1,
+            "col": 4,
+            "code": "001100",
+            "original": 1166400,
+            "transformed": 466560,
+            "diff": 699840
+          },
+          {
+            "row": 1,
+            "col": 7,
+            "code": "001111",
+            "original": 291600,
+            "transformed": 729000,
+            "diff": -437400
+          }
+        ]
+      },
+      "reflectAntiDiagonal": {
+        "exact": false,
+        "mismatches": 52,
+        "absSum": 18147726,
+        "maxAbs": 874800,
+        "maxAt": {
+          "row": 3,
+          "col": 1,
+          "code": "011001",
+          "original": 583200,
+          "transformed": 1458000,
+          "diff": -874800
+        },
+        "normalizedAsymmetry": 0.21079103795153178,
+        "symmetryScore": 0.7892089620484682,
+        "examples": [
+          {
+            "row": 0,
+            "col": 0,
+            "code": "000000",
+            "original": 746496,
+            "transformed": 455625,
+            "diff": 290871
+          },
+          {
+            "row": 0,
+            "col": 1,
+            "code": "000001",
+            "original": 373248,
+            "transformed": 364500,
+            "diff": 8748
+          },
+          {
+            "row": 0,
+            "col": 2,
+            "code": "000010",
+            "original": 373248,
+            "transformed": 364500,
+            "diff": 8748
+          },
+          {
+            "row": 0,
+            "col": 3,
+            "code": "000011",
+            "original": 186624,
+            "transformed": 291600,
+            "diff": -104976
+          },
+          {
+            "row": 0,
+            "col": 4,
+            "code": "000100",
+            "original": 933120,
+            "transformed": 364500,
+            "diff": 568620
+          },
+          {
+            "row": 0,
+            "col": 5,
+            "code": "000101",
+            "original": 466560,
+            "transformed": 291600,
+            "diff": 174960
+          },
+          {
+            "row": 0,
+            "col": 6,
+            "code": "000110",
+            "original": 466560,
+            "transformed": 291600,
+            "diff": 174960
+          },
+          {
+            "row": 1,
+            "col": 0,
+            "code": "001000",
+            "original": 933120,
+            "transformed": 911250,
+            "diff": 21870
+          },
+          {
+            "row": 1,
+            "col": 1,
+            "code": "001001",
+            "original": 466560,
+            "transformed": 729000,
+            "diff": -262440
+          },
+          {
+            "row": 1,
+            "col": 2,
+            "code": "001010",
+            "original": 466560,
+            "transformed": 729000,
+            "diff": -262440
+          }
+        ]
+      }
+    },
+    "rowSums": [
+      {
+        "row": 7,
+        "rowBits": "111",
+        "sum": 7381125
+      },
+      {
+        "row": 3,
+        "rowBits": "011",
+        "sum": 5904900
+      },
+      {
+        "row": 5,
+        "rowBits": "101",
+        "sum": 5904900
+      },
+      {
+        "row": 6,
+        "rowBits": "110",
+        "sum": 5904900
+      },
+      {
+        "row": 1,
+        "rowBits": "001",
+        "sum": 4723920
+      },
+      {
+        "row": 2,
+        "rowBits": "010",
+        "sum": 4723920
+      },
+      {
+        "row": 4,
+        "rowBits": "100",
+        "sum": 4723920
+      },
+      {
+        "row": 0,
+        "rowBits": "000",
+        "sum": 3779136
+      }
+    ],
+    "columnSums": [
+      {
+        "col": 4,
+        "colBits": "100",
+        "sum": 10628820
+      },
+      {
+        "col": 0,
+        "colBits": "000",
+        "sum": 8503056
+      },
+      {
+        "col": 5,
+        "colBits": "101",
+        "sum": 5314410
+      },
+      {
+        "col": 6,
+        "colBits": "110",
+        "sum": 5314410
+      },
+      {
+        "col": 1,
+        "colBits": "001",
+        "sum": 4251528
+      },
+      {
+        "col": 2,
+        "colBits": "010",
+        "sum": 4251528
+      },
+      {
+        "col": 7,
+        "colBits": "111",
+        "sum": 2657205
+      },
+      {
+        "col": 3,
+        "colBits": "011",
+        "sum": 2125764
+      }
+    ]
+  },
+  "petoukhov": {
+    "structuralComparison": {
+      "petoukhov": {
+        "object": "matrice 8x8 dei 64 codoni",
+        "cardinality": 64,
+        "dynamic": false,
+        "weighted": false
+      },
+      "pf8": {
+        "object": "matrice 8x8 dei 64 fenotipi",
+        "cardinality": 64,
+        "dynamic": true,
+        "weighted": true,
+        "weightMeaning": "potenza genomica"
+      }
+    },
+    "pf8Findings": {
+      "totalMass": 43046721,
+      "entropy": 5.800895907461867,
+      "maxCell": {
+        "row": 7,
+        "col": 4,
+        "code": "111100",
+        "count": 1822500
+      },
+      "minCell": {
+        "row": 0,
+        "col": 3,
+        "code": "000011",
+        "count": 186624
+      },
+      "bestApproximateSymmetries": [
+        {
+          "name": "reflectHorizontal",
+          "symmetryScore": 0.8340192043895748,
+          "normalizedAsymmetry": 0.16598079561042525,
+          "mismatches": 64
+        },
+        {
+          "name": "reflectAntiDiagonal",
+          "symmetryScore": 0.7892089620484682,
+          "normalizedAsymmetry": 0.21079103795153178,
+          "mismatches": 52
+        },
+        {
+          "name": "rotate90",
+          "symmetryScore": 0.6957780826093583,
+          "normalizedAsymmetry": 0.3042219173906417,
+          "mismatches": 64
+        },
+        {
+          "name": "rotate270",
+          "symmetryScore": 0.6957780826093583,
+          "normalizedAsymmetry": 0.3042219173906417,
+          "mismatches": 64
+        },
+        {
+          "name": "reflectMainDiagonal",
+          "symmetryScore": 0.6707818930041152,
+          "normalizedAsymmetry": 0.3292181069958848,
+          "mismatches": 40
+        },
+        {
+          "name": "reflectVertical",
+          "symmetryScore": 0.617283950617284,
+          "normalizedAsymmetry": 0.38271604938271603,
+          "mismatches": 64
+        },
+        {
+          "name": "rotate180",
+          "symmetryScore": 0.5928974241731444,
+          "normalizedAsymmetry": 0.40710257582685566,
+          "mismatches": 52
+        }
+      ],
+      "rowSums": [
+        {
+          "row": 7,
+          "rowBits": "111",
+          "sum": 7381125
+        },
+        {
+          "row": 3,
+          "rowBits": "011",
+          "sum": 5904900
+        },
+        {
+          "row": 5,
+          "rowBits": "101",
+          "sum": 5904900
+        },
+        {
+          "row": 6,
+          "rowBits": "110",
+          "sum": 5904900
+        },
+        {
+          "row": 1,
+          "rowBits": "001",
+          "sum": 4723920
+        },
+        {
+          "row": 2,
+          "rowBits": "010",
+          "sum": 4723920
+        },
+        {
+          "row": 4,
+          "rowBits": "100",
+          "sum": 4723920
+        },
+        {
+          "row": 0,
+          "rowBits": "000",
+          "sum": 3779136
+        }
+      ],
+      "columnSums": [
+        {
+          "col": 4,
+          "colBits": "100",
+          "sum": 10628820
+        },
+        {
+          "col": 0,
+          "colBits": "000",
+          "sum": 8503056
+        },
+        {
+          "col": 5,
+          "colBits": "101",
+          "sum": 5314410
+        },
+        {
+          "col": 6,
+          "colBits": "110",
+          "sum": 5314410
+        },
+        {
+          "col": 1,
+          "colBits": "001",
+          "sum": 4251528
+        },
+        {
+          "col": 2,
+          "colBits": "010",
+          "sum": 4251528
+        },
+        {
+          "col": 7,
+          "colBits": "111",
+          "sum": 2657205
+        },
+        {
+          "col": 3,
+          "colBits": "011",
+          "sum": 2125764
+        }
+      ]
+    },
+    "interpretation": "Il confronto rigoroso non identifica PF8 con YY8: confronta cardinalità, simmetrie, struttura 8x8 e decomponibilità."
+  }
+}

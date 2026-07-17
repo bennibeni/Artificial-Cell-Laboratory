@@ -1,0 +1,731 @@
+CARATTERISTICHE DELLA CELLULA ARTIFICIALE
+E ANALOGIE CON I FENOMENI BIOLOGICI NATURALI
+============================================================
+
+1. NATURA E SCOPO DEL MODELLO
+----------------------------
+
+La cellula artificiale è un modello computazionale semplificato del passaggio
+dall'informazione genetica al fenotipo.
+
+Non riproduce la biochimica completa di una cellula reale: non simula molecole
+specifiche, concentrazioni, reazioni chimiche, metabolismo o produzione di
+energia. Rappresenta invece alcuni principi generali della biologia mediante
+bit, matrici, regole logiche e trasformazioni temporali.
+
+La pipeline fondamentale è:
+
+    Genoma 4x4
+        ->
+    Risoluzione mendeliana
+        ->
+    Otto loci
+        ->
+    Tom Thumb Engine T4
+        ->
+    Memoria interna
+        ->
+    MessageData
+        ->
+    Codice PF8
+        ->
+    Fenotipo
+
+L'idea biologica centrale è che il fenotipo non sia una copia immediata del
+genoma, ma il risultato di un processo di interpretazione, regolazione e
+sviluppo.
+
+
+2. GENOMA 4x4
+-------------
+
+Il genoma è una matrice di 16 valori binari:
+
+    0 oppure 1
+
+Ogni riga contiene quattro alleli e rappresenta un carattere. Le prime due
+colonne formano una coppia allelica; le ultime due ne formano una seconda.
+
+Esempio:
+
+    1 0 | 1 0
+    1 1 | 0 1
+    0 0 | 1 1
+    1 0 | 0 1
+
+Analogia naturale:
+
+Negli organismi diploidi molti geni sono presenti in due copie, ereditate dai
+due genitori. I bit sono una rappresentazione molto semplificata degli alleli.
+
+Limiti:
+
+I geni reali non sono bit. Molti caratteri dipendono da numerosi geni, da
+varianti multiple, dall'ambiente e da reti di regolazione.
+
+
+3. RISOLUZIONE MENDELIANA
+-------------------------
+
+Ogni coppia di alleli viene trasformata in un solo valore mediante OR logica:
+
+    00 -> 0
+    01 -> 1
+    10 -> 1
+    11 -> 1
+
+Il valore 1 si comporta quindi come dominante e il valore 0 come recessivo.
+
+Dal genoma si ottengono otto loci risolti, per esempio:
+
+    11011111
+
+Analogia naturale:
+
+La regola richiama la dominanza mendeliana completa, nella quale una sola copia
+di un allele dominante è sufficiente per manifestare il carattere.
+
+Limiti:
+
+La biologia reale comprende dominanza incompleta, codominanza, epistasi,
+penetranza variabile, espressività variabile e caratteri poligenici.
+
+
+4. OTTO LOCI RISOLTI
+--------------------
+
+Gli otto loci sono indicati come:
+
+    L0, L1, L2, L3, L4, L5, L6, L7
+
+Essi rappresentano il livello intermedio fra genoma grezzo e attività
+cellulare.
+
+Analogia naturale:
+
+Nelle cellule reali soltanto determinate regioni del DNA vengono attivate,
+represse o interpretate. Il genoma completo non viene trasformato direttamente
+in fenotipo.
+
+
+5. TOM THUMB ENGINE T4
+----------------------
+
+Il motore T4 interpreta i loci con la regola:
+
+    write_t = L_t XOR L_(t+2 mod 8)
+
+Ogni locus viene confrontato con quello distante due posizioni. La XOR vale 1
+quando i due valori sono diversi e 0 quando sono uguali.
+
+    0 XOR 0 -> 0
+    0 XOR 1 -> 1
+    1 XOR 0 -> 1
+    1 XOR 1 -> 0
+
+Analogia naturale:
+
+Il motore richiama una rete di regolazione genica. Nella natura l'espressione
+di un gene può dipendere dalla combinazione di più segnali, dall'attivazione o
+dalla repressione esercitata da altri geni e proteine.
+
+La XOR non rappresenta una reazione molecolare reale. È una regola astratta di
+interazione: segnali uguali producono silenzio, segnali differenti producono
+attività.
+
+
+6. SVILUPPO TEMPORALE
+---------------------
+
+La cellula si sviluppa in otto tick.
+
+A ogni tick:
+
+1. viene selezionato un locus;
+2. viene individuato il partner;
+3. viene applicata la XOR;
+4. il risultato viene scritto nella memoria;
+5. l'evento viene registrato nella cronologia.
+
+Analogia naturale:
+
+Le cellule reali cambiano nel tempo. Trascrizione, traduzione, accumulo di
+proteine, degradazione e differenziamento non sono istantanei. Il modello
+rappresenta correttamente il principio secondo cui il fenotipo emerge
+progressivamente.
+
+
+7. MEMORIA INTERNA 4x4
+----------------------
+
+La memoria è una matrice binaria 4x4 distinta dal genoma.
+
+L'indirizzo di scrittura è:
+
+    riga = tick mod 4
+    colonna = floor(tick / 4)
+
+La memoria registra gli esiti delle elaborazioni compiute dal motore.
+
+Analogia naturale:
+
+La memoria può rappresentare, in modo astratto:
+
+- RNA presenti;
+- proteine accumulate;
+- segnali intracellulari;
+- stato di attivazione dei geni;
+- modificazioni epigenetiche;
+- prodotti intermedi;
+- storia dello sviluppo.
+
+La distinzione fra genoma e memoria è biologicamente importante. Cellule con
+lo stesso DNA possono avere funzioni molto diverse perché possiedono stati
+molecolari ed epigenetici differenti.
+
+
+8. MESSAGEDATA
+--------------
+
+I risultati presenti nella memoria vengono letti in un ordine definito e
+formano una sequenza di otto bit.
+
+Esempio:
+
+    MessageData = 10100000
+
+Analogia naturale:
+
+MessageData può essere interpretato come un messaggio cellulare astratto,
+simile concettualmente a un profilo di espressione, a un insieme di RNA o a una
+combinazione di segnali intracellulari.
+
+Non è un vero RNA messaggero, ma rappresenta il principio secondo cui
+l'informazione genetica deve diventare informazione operativa.
+
+
+9. CODICE PF8
+-------------
+
+I primi sei bit di MessageData costituiscono il codice PF8.
+
+Esempio:
+
+    MessageData = 10100000
+    codice PF8 = 101000
+
+Gli ultimi due bit restano disponibili per estensioni future.
+
+Analogia naturale:
+
+Il codice PF8 rappresenta la convergenza di uno stato interno complesso verso
+un'identità fenotipica discreta. Nelle cellule reali molte combinazioni
+molecolari possono convergere verso un numero limitato di stati cellulari
+stabili.
+
+
+10. MATRICE PF8 8x8
+-------------------
+
+Il codice di sei bit viene diviso in due gruppi:
+
+    abc | def
+
+I primi tre bit indicano la riga.
+Gli ultimi tre bit indicano la colonna.
+
+Tre bit rappresentano valori da 0 a 7, quindi:
+
+    8 righe x 8 colonne = 64 celle
+
+Esempio:
+
+    101 | 000
+    riga = 5
+    colonna = 0
+
+La posizione PF8 è quindi:
+
+    (5, 0)
+
+Analogia naturale:
+
+La matrice può essere vista come uno spazio discreto dei fenotipi o come un
+paesaggio di stati cellulari possibili.
+
+
+11. I SEI CARATTERI FENOTIPICI
+------------------------------
+
+I sei bit descrivono sei assi binari:
+
+1. sesso;
+2. pelle;
+3. capelli;
+4. occhi;
+5. tolleranza al lattosio;
+6. visione.
+
+Configurazione attuale:
+
+    sesso:
+        femmina / maschio
+
+    pelle:
+        chiara / scura
+
+    capelli:
+        lisci / ricci
+
+    occhi:
+        marroni / verdi
+
+    lattosio:
+        non tollerante / tollerante
+
+    visione:
+        normale / daltonismo
+
+Con sei caratteri binari si ottengono:
+
+    2^6 = 64 fenotipi
+
+Analogia naturale:
+
+Il modello rappresenta la combinazione di caratteri differenti e la produzione
+di diversità fenotipica.
+
+Limiti:
+
+Molti di questi caratteri non sono realmente binari. Colore della pelle,
+colore degli occhi e struttura dei capelli sono caratteri complessi e spesso
+poligenici. Anche sesso biologico e daltonismo comprendono più livelli e
+varianti di quelli rappresentati.
+
+
+12. TOLLERANZA AL LATTOSIO
+--------------------------
+
+Il carattere inizialmente denominato "cultura" rappresenta in realtà la
+persistenza della lattasi:
+
+- non tollerante al lattosio;
+- tollerante al lattosio.
+
+L'interpretazione narrativa associa:
+
+- cacciatrice-raccoglitrice;
+- allevatrice-pastorale.
+
+Analogia naturale:
+
+La persistenza della lattasi negli adulti è un fenomeno biologico reale. In
+alcune popolazioni umane varianti regolative permettono di continuare a
+digerire il lattosio dopo lo svezzamento.
+
+La diffusione di queste varianti è stata favorita, in alcune popolazioni,
+dall'allevamento e dal consumo di latte. È un noto esempio di coevoluzione fra
+geni e cultura.
+
+Limiti:
+
+La relazione non è deterministica. Non tutte le popolazioni pastorali sono
+tolleranti al lattosio e non tutte le persone tolleranti appartengono a culture
+pastorali.
+
+
+13. AVATAR DEL FENOTIPO
+-----------------------
+
+La pagina Fenotipo rappresenta visivamente il codice PF8 mediante un avatar.
+
+L'avatar può mostrare:
+
+- sesso;
+- tonalità della pelle;
+- capelli lisci o ricci;
+- occhi marroni o verdi;
+- eventuale daltonismo;
+- simbolo associato alla tolleranza al lattosio.
+
+Analogia naturale:
+
+L'avatar rende visibile il passaggio da stato interno a caratteri osservabili.
+Questo richiama il significato del fenotipo come insieme dei caratteri
+manifestati da un organismo.
+
+Limiti:
+
+L'avatar è simbolico. Non rappresenta anatomia, sviluppo, età, ambiente,
+variazioni quantitative o interazioni complesse fra caratteri.
+
+
+14. POTENZA GENOMICA
+--------------------
+
+Il database PF8 completo contiene 43.046.721 configurazioni genomiche.
+
+Per ogni codice registra quanti genomi differenti producono quel risultato.
+
+Esempio:
+
+    codice = 101000
+    posizione = (5, 0)
+    potenza genomica = 1.166.400
+
+La potenza genomica è quindi il numero di configurazioni iniziali che
+convergono verso la stessa cella PF8.
+
+Analogia naturale:
+
+Genotipi differenti possono produrre lo stesso fenotipo. Questo fenomeno è
+collegato a:
+
+- ridondanza;
+- neutralità;
+- robustezza;
+- degenerazione della relazione genotipo-fenotipo;
+- canalizzazione dello sviluppo.
+
+Limiti:
+
+Le frequenze PF8 dipendono dalle regole artificiali del modello. Non sono
+frequenze osservate nella popolazione umana.
+
+
+15. ROBUSTEZZA
+--------------
+
+Un fenotipo raggiunto da molti genomi è più robusto rispetto a determinate
+variazioni del genoma.
+
+Analogia naturale:
+
+Gli organismi possono mantenere un fenotipo stabile nonostante mutazioni,
+rumore molecolare o variazioni ambientali. La robustezza biologica può derivare
+da ridondanza genetica, compensazione, feedback e riparazione.
+
+
+16. MUTAZIONI
+-------------
+
+Un allele può essere modificato passando:
+
+    da 0 a 1
+    oppure
+    da 1 a 0
+
+La mutazione può:
+
+- non modificare il locus risolto;
+- modificare un locus;
+- modificare il risultato della XOR;
+- modificare la memoria;
+- modificare MessageData;
+- spostare la cellula in un'altra posizione PF8;
+- modificare uno o più caratteri del fenotipo.
+
+Analogia naturale:
+
+Le mutazioni reali possono essere neutre, lievi, dannose, vantaggiose o
+dipendenti dall'ambiente. Il modello rende osservabile la catena causale:
+
+    mutazione
+        ->
+    variazione dell'informazione
+        ->
+    variazione dello stato interno
+        ->
+    possibile variazione fenotipica
+
+
+17. CRONOLOGIA DELLO SVILUPPO
+-----------------------------
+
+Ogni evento registra:
+
+- tick;
+- locus corrente;
+- locus partner;
+- valori letti;
+- valore scritto;
+- indirizzo della memoria;
+- valore precedente;
+- memoria prima della scrittura;
+- memoria dopo la scrittura.
+
+Analogia naturale:
+
+La storia di una cellula è importante. Lo stato presente può dipendere da
+segnali ricevuti, divisioni precedenti, condizioni ambientali e modificazioni
+epigenetiche.
+
+
+18. ISPEZIONE INTERNA
+---------------------
+
+Il modulo di ispezione calcola:
+
+- fase;
+- stabilità;
+- completezza;
+- massa della memoria;
+- celle occupate;
+- massa del messaggio;
+- disponibilità del fenotipo;
+- note diagnostiche.
+
+La massa della memoria è il numero complessivo di valori attivi nella memoria.
+La massa del messaggio è il numero di bit attivi in MessageData.
+
+Analogia naturale:
+
+Queste misure richiamano, in forma astratta, la valutazione di livelli di
+espressione, quantità di prodotti, stato di maturazione e attività cellulare.
+
+
+19. STABILITÀ E COMPLETEZZA
+---------------------------
+
+La cellula è completa quando:
+
+- sono stati eseguiti tutti gli otto tick;
+- sono presenti otto eventi nella cronologia;
+- il messaggio e il codice PF8 sono disponibili.
+
+È stabile quando lo sviluppo è completo e il fenotipo è pronto.
+
+Analogia naturale:
+
+La stabilità richiama il raggiungimento di uno stato funzionale coerente o di
+un'identità cellulare differenziata.
+
+Limiti:
+
+La stabilità del modello è una condizione logica. Non misura omeostasi chimica,
+vitalità, energia o capacità di riparazione.
+
+
+20. STATISTICHE PF8
+-------------------
+
+Il database permette di calcolare:
+
+- frequenza di ogni codice;
+- probabilità relativa;
+- media;
+- varianza;
+- deviazione standard;
+- entropia;
+- minimo e massimo;
+- rango;
+- somme per riga e colonna;
+- simmetrie approssimate.
+
+Analogia naturale:
+
+Queste analisi ricordano lo studio di frequenze fenotipiche, diversità,
+prevalenza, rarità ed eterogeneità biologica.
+
+L'entropia misura la dispersione statistica dei fenotipi, non il disordine
+fisico della cellula.
+
+
+21. GEOMETRIA PF8
+-----------------
+
+La distribuzione dei 64 fenotipi può essere mostrata come una matrice di
+densità.
+
+Si possono osservare:
+
+- regioni frequenti;
+- regioni rare;
+- massimi;
+- minimi;
+- asimmetrie;
+- possibili strutture geometriche.
+
+Analogia naturale:
+
+La matrice richiama un paesaggio fenotipico o un paesaggio adattativo, nel quale
+alcuni stati sono più facilmente raggiungibili di altri.
+
+
+22. MODULARITÀ
+--------------
+
+Il progetto separa:
+
+- genoma;
+- Mendel;
+- motore T4;
+- memoria;
+- MessageData;
+- PF8;
+- fenotipo;
+- avatar;
+- ispezione;
+- cronologia;
+- statistiche;
+- interfaccia.
+
+Analogia naturale:
+
+Le cellule reali sono organizzate in sottosistemi: conservazione
+dell'informazione, espressione genica, metabolismo, segnalazione, trasporto e
+riparazione. I moduli sono distinti ma interdipendenti.
+
+
+23. SEPARAZIONE FRA MOTORE E INTERFACCIA
+----------------------------------------
+
+La logica scientifica è separata dalla visualizzazione React.
+
+Il motore può essere:
+
+- testato senza interfaccia;
+- riutilizzato in altre app;
+- applicato a molte cellule;
+- confrontato con regole diverse;
+- impiegato per simulazioni di popolazioni.
+
+Analogia naturale:
+
+La cellula esiste indipendentemente dallo strumento con cui viene osservata.
+Allo stesso modo, il motore esiste indipendentemente dall'interfaccia grafica.
+
+
+24. CARATTERISTICHE BIOLOGICAMENTE PLAUSIBILI
+---------------------------------------------
+
+Il modello è biologicamente plausibile nei seguenti principi:
+
+1. il genoma è distinto dal fenotipo;
+2. l'informazione deve essere interpretata;
+3. più loci possono interagire;
+4. lo sviluppo richiede tempo;
+5. la cellula possiede uno stato interno;
+6. la storia precedente può essere registrata;
+7. mutazioni differenti possono avere effetti differenti;
+8. molti genotipi possono convergere sullo stesso fenotipo;
+9. alcuni stati sono più robusti o frequenti di altri;
+10. il fenotipo emerge da una pipeline, non da una copia diretta.
+
+
+25. FENOMENI NON ANCORA MODELLATI
+---------------------------------
+
+La cellula artificiale non include ancora:
+
+- membrana;
+- compartimentazione;
+- trasporto;
+- metabolismo;
+- ATP;
+- reazioni chimiche;
+- concentrazioni;
+- RNA e proteine reali;
+- degradazione;
+- replicazione del DNA;
+- mitosi;
+- meiosi;
+- divisione cellulare;
+- segnali extracellulari;
+- ambiente;
+- competizione;
+- selezione;
+- morte cellulare;
+- riparazione;
+- rumore molecolare;
+- evoluzione di popolazioni.
+
+
+26. VALUTAZIONE SCIENTIFICA
+---------------------------
+
+La cellula artificiale è soprattutto un modello:
+
+- informazionale;
+- funzionale;
+- dinamico;
+- didattico;
+- computazionale.
+
+Non è ancora un modello:
+
+- biochimico;
+- metabolico;
+- fisiologico;
+- molecolare dettagliato.
+
+La definizione più corretta è:
+
+    modello computazionale minimale
+    dell'interpretazione del genoma
+    e della costruzione del fenotipo
+
+
+
+PRECISAZIONE METODOLOGICA
+-------------------------
+
+Il modello riproduce principi biologici generali — diploidia, dominanza,
+regolazione, sviluppo temporale e convergenza genotipo-fenotipo — mediante
+regole logiche semplificate. Non rappresenta direttamente la biochimica di una
+cellula reale.
+
+27. FORMULA RIASSUNTIVA
+-----------------------
+
+La pipeline può essere espressa come:
+
+    G -> L -> TTE-T4 -> M -> D -> PF8 -> P
+
+dove:
+
+    G       = genoma
+    L       = loci risolti
+    TTE-T4  = motore di interpretazione
+    M       = memoria
+    D       = MessageData
+    PF8     = codice e posizione fenotipica
+    P       = fenotipo
+
+L'analogia naturale generale è:
+
+    DNA
+        ->
+    regolazione ed espressione
+        ->
+    stato molecolare
+        ->
+    sviluppo
+        ->
+    fenotipo
+
+
+28. CONCLUSIONE
+---------------
+
+La cellula artificiale non riproduce una cellula vivente in tutti i suoi
+dettagli. Il suo valore consiste nel rendere visibili e sperimentabili alcuni
+principi fondamentali:
+
+- ereditarietà;
+- dominanza;
+- interazione fra loci;
+- regolazione;
+- sviluppo;
+- memoria;
+- robustezza;
+- mutazione;
+- degenerazione genotipo-fenotipo;
+- differenziamento;
+- stabilità;
+- diversità fenotipica.
+
+La sua analogia più importante con la natura può essere espressa così:
+
+    una cellula non è soltanto il suo genoma;
+    è il processo che interpreta quel genoma nel tempo.

@@ -1,0 +1,21 @@
+{
+  "name": "l-insegnante",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Multilingual Vocabulary Quiz",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "next": "^15.2.6",
+    "react": "^19.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "typescript": "^5"
+  }
+}
