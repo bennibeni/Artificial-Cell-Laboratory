@@ -1,8 +1,8 @@
 {
-  "name": "l-insegnante",
+  "name": "artificial-cell-laboratory",
   "version": "1.0.0",
   "private": true,
-  "description": "Multilingual Vocabulary Quiz",
+  "description": "Artificial Cell Laboratory — simulatore didattico di cellula T4/PF8 con genoma 4x4, risoluzione mendeliana e fenotipo a 6 tratti",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

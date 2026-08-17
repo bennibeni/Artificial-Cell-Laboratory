@@ -18,6 +18,7 @@ import {
   MODEL_GLOSSARY_ALIASES,
   MODEL_GLOSSARY_BY_ALIAS,
 } from "./lib/biologyGlossary.js";
+import { runReplicationLineage, expectedSilentWindow } from "./lib/replicationEngine.js";
 
 const tabs = [
   "Simulatore",
@@ -25,6 +26,7 @@ const tabs = [
   "Mendel",
   "TTE-T4",
   "Memoria",
+  "Replicazione",
   "PF8",
   "Fenotipo",
   "Ispezione",
@@ -194,6 +196,14 @@ const tabHelp = {
       "In genetica delle popolazioni le frequenze di varianti e fenotipi non sono necessariamente uniformi. Vincoli ereditari e combinatori possono rendere alcuni esiti molto più comuni di altri, proprio come accade nella matrice PF8.",
     ],
   },
+  Replicazione: {
+    title: "Replicazione per auto-ispezione",
+    paragraphs: [
+      "A ogni generazione, il MessageData calcolato dalla cellula precedente diventa il genoma (omozigote) della cellula successiva: l'organismo copia il proprio stato attuale, non un genoma originale fisso. È lo stesso principio usato dal Tom Thumb Algorithm per la replicazione dell'Universal Constructor di von Neumann.",
+      "Senza mutazioni la linea collassa sempre allo stato tutto-zero entro la generazione 3, mai oltre: verificato per esaustione su tutti i 65.536 genomi 4×4 possibili. Con una mutazione ogni N generazioni, vale una regola esatta: se N è 3 o meno la linea non muore mai; se N è 4 o più, la linea attraversa esattamente N−3 generazioni di silenzio a ogni ciclo prima di rinascere. È una conseguenza diretta del limite dei 3 passi, non un effetto separato.",
+      "Il pannello mostra, generazione per generazione, quali bit del MessageData sono cambiati rispetto al genitore e quante generazioni mancano al collasso a partire dalla cellula corrente.",
+    ],
+  },
 };
 
 function Card({ title, subtitle, children, className = "" }) {
@@ -273,6 +283,274 @@ function PF8Grid({ counts, active }) {
           </div>
         )),
       )}
+    </div>
+  );
+}
+
+function generationsUntilSilenceDisplay(lineage, fromIndex) {
+  for (let i = fromIndex; i < lineage.length; i++) {
+    if (lineage[i].isZeroState) return i === fromIndex ? "già silente" : `${i - fromIndex}`;
+  }
+  return `oltre l'orizzonte visibile (${lineage.length - 1 - fromIndex}+)`;
+}
+
+function DiffBits({ values, diffFlags }) {
+  return (
+    <div className="bits" aria-label="Sequenza di bit con differenze evidenziate">
+      {values.map((value, index) => (
+        <span
+          className={`${value ? "on" : "off"} ${diffFlags?.[index] ? "changed" : ""}`}
+          key={index}
+          title={diffFlags?.[index] ? "Cambiato rispetto alla generazione precedente" : undefined}
+        >
+          {value}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+// --- Storyboard didattica "Nascita, senescenza, rinascita" ---
+//
+// Usa una linea di generazioni CALCOLATA UNA VOLTA SOLA con parametri fissi
+// (genoma di default, mutazione ogni 4 generazioni), indipendente dai
+// controlli correnti del tab Replicazione. Questo è intenzionale: i testi
+// dei pannelli citano numeri esatti ("esattamente 1 generazione di
+// silenzio"), validi solo per N=4. Se la storyboard leggesse lo state
+// corrente dell'utente (mutateEvery, genome), quei numeri diventerebbero
+// falsi ogni volta che l'utente avesse cambiato i controlli prima di
+// aprirla. La storyboard racconta sempre la stessa storia, con dati
+// riproducibili, mentre il resto del tab resta libero ed esplorativo.
+const STORYBOARD_MUTATE_EVERY = 4;
+const STORYBOARD_GENERATIONS = 8;
+
+function buildStoryboardLineage() {
+  return runReplicationLineage(DEFAULT_GENOME_4X4, STORYBOARD_GENERATIONS, {
+    mutateEveryNGenerations: STORYBOARD_MUTATE_EVERY,
+    randomLocusPicker: () => 3, // locus fisso: la storia è riproducibile a ogni apertura
+  });
+}
+
+function StoryboardPanel({ lineage, genIndex, diffAgainst, badge, title, natural, children }) {
+  const gen = lineage[genIndex];
+  const parent = diffAgainst !== null && diffAgainst !== undefined ? lineage[diffAgainst] : null;
+  const diffFlags = parent
+    ? parent.cell.messageData.map((bit, i) => bit !== gen.cell.messageData[i])
+    : null;
+
+  return (
+    <div className="storyboard-panel">
+      <div className="storyboard-panel-icon" aria-hidden="true">{badge}</div>
+      <div className="storyboard-panel-body">
+        <h3>{title}</h3>
+        {gen ? (
+          <>
+            <DiffBits values={gen.cell.messageData} diffFlags={diffFlags} />
+            <p className="storyboard-panel-meta">
+              Generazione {gen.generation} · codice {gen.cell.code}
+              {gen.mutation ? ` · mutazione sul locus ${gen.mutation.locus} (${gen.mutation.from}→${gen.mutation.to})` : ""}
+              {gen.isZeroState ? " · stato silente" : ""}
+            </p>
+          </>
+        ) : null}
+        <p>{children}</p>
+        {natural ? <p className="storyboard-panel-natural">{natural}</p> : null}
+      </div>
+    </div>
+  );
+}
+
+function StoryboardOverlay({ onClose }) {
+  const lineage = useMemo(() => buildStoryboardLineage(), []);
+  const [step, setStep] = useState(0);
+  const [cycleTick, setCycleTick] = useState(0); // per il mini-stepper del pannello 6
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") onClose();
+      if (event.key === "ArrowRight") setStep((s) => Math.min(6, s + 1));
+      if (event.key === "ArrowLeft") setStep((s) => Math.max(0, s - 1));
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    document.body.classList.add("modal-open");
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.body.classList.remove("modal-open");
+    };
+  }, [onClose]);
+
+  // Pannello 6: ciclo di 4 generazioni (4,5,6,7) percorribile manualmente
+  const cycleGenIndex = 4 + (cycleTick % 4);
+
+  const panels = [
+    <StoryboardPanel
+      key="p0"
+      lineage={lineage}
+      genIndex={0}
+      diffAgainst={null}
+      badge="1"
+      title="Nascita"
+    >
+      Una cellula nasce con un genoma completo. In una cellula umana, il DNA include anche i telomeri:
+      sequenze ripetute non codificanti alle estremità dei cromosomi, che funzionano come il tappo di
+      plastica in fondo a un laccio da scarpe — proteggono, non contengono istruzioni.
+    </StoryboardPanel>,
+
+    <StoryboardPanel
+      key="p1"
+      lineage={lineage}
+      genIndex={1}
+      diffAgainst={0}
+      badge="2"
+      title="Prima divisione"
+    >
+      La cellula si replica per auto-ispezione: la figlia eredita ciò che la madre è diventata (il suo
+      MessageData calcolato), non il genoma originale. Nel corpo umano, ogni divisione cellulare accorcia
+      leggermente i telomeri — le DNA polimerasi non riescono a copiare fino in fondo l'estremità di un
+      filamento lineare: è un limite meccanico della replicazione, non un errore.
+    </StoryboardPanel>,
+
+    <StoryboardPanel
+      key="p2"
+      lineage={lineage}
+      genIndex={2}
+      diffAgainst={1}
+      badge="3"
+      title="Seconda divisione"
+    >
+      L'informazione continua a impoverirsi, ma il fenotipo (PF8) sembra ancora vitale. Anche i telomeri
+      accorciati non sono ancora abbastanza corti da attivare un allarme — la cellula biologica continua a
+      dividersi normalmente, senza segni visibili del conto alla rovescia in corso.
+    </StoryboardPanel>,
+
+    <StoryboardPanel
+      key="p3"
+      lineage={lineage}
+      genIndex={3}
+      diffAgainst={2}
+      badge="4"
+      title="Senescenza"
+    >
+      Il silenzio arriva sempre qui: verificato su tutti i 65.536 genomi 4×4 possibili, mai oltre la
+      generazione 3. È il limite di Hayflick del nostro motore — un contatore fisso incorporato nella
+      struttura stessa della regola di trasformazione, non nel singolo genoma di partenza. Nel corpo, quando
+      i telomeri scendono sotto una soglia critica, la cellula rileva la cosa come un danno al DNA e blocca
+      la divisione: senescenza replicativa. La cellula non muore, semplicemente smette di dividersi.
+    </StoryboardPanel>,
+
+    <StoryboardPanel
+      key="p4"
+      lineage={lineage}
+      genIndex={4}
+      diffAgainst={3}
+      badge="5"
+      title="Il bivio (telomerasi)"
+    >
+      Con una mutazione ogni 4 generazioni, la cellula resta silente per esattamente 1 generazione, poi
+      rinasce. Nel corpo, l'enzima telomerasi può ricostruire i telomeri e resettare il contatore — è attivo
+      nelle cellule staminali (che devono rifornire i tessuti per tutta la vita) ma silenziato nella maggior
+      parte delle cellule somatiche adulte. Non a caso: dare a ogni cellula la capacità di dividersi
+      all'infinito sarebbe pericoloso.
+    </StoryboardPanel>,
+
+    <div className="storyboard-panel" key="p5">
+      <div className="storyboard-panel-icon" aria-hidden="true">6</div>
+      <div className="storyboard-panel-body">
+        <h3>Equilibrio, non progresso</h3>
+        <DiffBits
+          values={lineage[cycleGenIndex].cell.messageData}
+          diffFlags={lineage[cycleGenIndex - 1]?.cell.messageData.map(
+            (bit, i) => bit !== lineage[cycleGenIndex].cell.messageData[i],
+          )}
+        />
+        <p className="storyboard-panel-meta">
+          Generazione {lineage[cycleGenIndex].generation} del ciclo
+          {lineage[cycleGenIndex].isZeroState ? " · stato silente" : ""}
+        </p>
+        <div className="storyboard-cycle-controls">
+          <button type="button" onClick={() => setCycleTick((t) => t + 1)}>
+            Avanza nel ciclo →
+          </button>
+        </div>
+        <p>
+          La mutazione salva la linea dall'estinzione, ma non garantisce novità: qui produce un'orbita
+          ripetitiva di 4 generazioni (3 vive + 1 silente), non una vera deriva evolutiva. È un'eco
+          imperfetta ma reale di un fatto inquietante: la telomerasi è riattivata nella maggior parte delle
+          cellule tumorali. La linea HeLa, coltivata ininterrottamente dal 1951, discende da cellule che
+          hanno riacceso questo meccanismo — non "guarendo" la cellula, ma rendendola capace di proliferare
+          senza limite.
+        </p>
+      </div>
+    </div>,
+
+    <div className="storyboard-panel" key="p6">
+      <div className="storyboard-panel-icon" aria-hidden="true">7</div>
+      <div className="storyboard-panel-body">
+        <h3>Dove l'analogia si rompe</h3>
+        <p>
+          Due avvertenze oneste. Primo: il nostro collasso è un fatto matematico (la trasformazione XOR
+          shift-2 non è iniettiva su un ciclo di 8), quello di Hayflick è un fatto biochimico (la lunghezza
+          fisica del DNA telomerico) — meccanismi del tutto diversi che producono un declino a soglia fissa
+          per ragioni non correlate.
+        </p>
+        <p>
+          Secondo: il nostro "stato zero" è un vicolo cieco innocuo, non una salvaguardia — nella biologia
+          reale, il limite di Hayflick è considerato un meccanismo anti-tumorale: fermare una linea cellulare
+          dopo un numero finito di cicli limita quanto danno accumulato può diffondersi nell'organismo. Il
+          nostro modello non ha nulla di equivalente a questa funzione protettiva.
+        </p>
+      </div>
+    </div>,
+  ];
+
+  return (
+    <div className="modal-backdrop" onMouseDown={onClose}>
+      <section
+        className="help-modal storyboard-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="storyboard-title"
+        onMouseDown={(event) => event.stopPropagation()}
+      >
+        <div className="help-modal-heading">
+          <div>
+            <p className="help-kicker">Storia · Replicazione per auto-ispezione</p>
+            <h2 id="storyboard-title">Nascita, senescenza, rinascita</h2>
+          </div>
+          <button type="button" className="modal-close" onClick={onClose} aria-label="Chiudi la storia">
+            ×
+          </button>
+        </div>
+
+        <div className="help-modal-content storyboard-content">{panels[step]}</div>
+
+        <div className="storyboard-progress" aria-label="Avanzamento della storia">
+          {panels.map((_, index) => (
+            <button
+              type="button"
+              key={index}
+              className={index === step ? "active" : ""}
+              onClick={() => setStep(index)}
+              aria-label={`Vai al pannello ${index + 1}`}
+            />
+          ))}
+        </div>
+
+        <div className="help-modal-footer storyboard-footer">
+          <button type="button" onClick={() => setStep((s) => Math.max(0, s - 1))} disabled={step === 0}>
+            ← Indietro
+          </button>
+          {step < panels.length - 1 ? (
+            <button type="button" onClick={() => setStep((s) => Math.min(panels.length - 1, s + 1))}>
+              Avanti →
+            </button>
+          ) : (
+            <button type="button" onClick={onClose}>
+              Chiudi
+            </button>
+          )}
+        </div>
+      </section>
     </div>
   );
 }
@@ -392,7 +670,29 @@ export default function App() {
   const [tick, setTick] = useState(8);
   const [tab, setTab] = useState("Simulatore");
   const [helpOpen, setHelpOpen] = useState(false);
+  const [storyboardOpen, setStoryboardOpen] = useState(false);
   const [lastMutation, setLastMutation] = useState(null);
+
+  // --- Replicazione per auto-ispezione (TTE-T4 + Tom Thumb self-inspection) ---
+  const [lineageLength, setLineageLength] = useState(10);
+  const [mutateEvery, setMutateEvery] = useState(4);
+  const [lineageSeed, setLineageSeed] = useState(0); // forza rigenerazione con nuova mutazione casuale
+  const [selectedGen, setSelectedGen] = useState(0);
+
+  const lineage = useMemo(
+    () =>
+      runReplicationLineage(genome, lineageLength, {
+        mutateEveryNGenerations: mutateEvery > 0 ? mutateEvery : null,
+      }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [genome, lineageLength, mutateEvery, lineageSeed],
+  );
+
+  const selectedGeneration = lineage[Math.min(selectedGen, lineage.length - 1)];
+  const selectedDiff =
+    selectedGeneration.parentMessageData?.map(
+      (bit, i) => bit !== selectedGeneration.cell.messageData[i],
+    ) ?? [];
 
   const cell = useMemo(() => cellAtTick(genome, tick), [genome, tick]);
   const complete = useMemo(() => runCompleteT4Cell(genome), [genome]);
@@ -1152,6 +1452,13 @@ export default function App() {
               value={cell.inspection.notes.join(", ") || "nessuna"}
             />
           </div>
+          <p className="cross-tab-link">
+            Questa è un'istantanea della cellula in un istante fisso. Il tab{" "}
+            <button type="button" className="link-button" onClick={() => setTab("Replicazione")}>
+              Replicazione
+            </button>{" "}
+            mostra la stessa diagnosi ripetuta su più generazioni consecutive — cosa succede quando questo stato diventa il punto di partenza della cellula successiva.
+          </p>
         </Card>
       )}
 
@@ -1199,6 +1506,153 @@ export default function App() {
           <Card title="Heatmap PF8" className="wide">
             <PF8Grid counts={db.pf8.counts} active={complete.pf8} />
           </Card>
+          </div>
+        </>
+      )}
+
+      {tab === "Replicazione" && (
+        <>
+          <SectionExplanation
+            badge="TTA"
+            title="Che cos'è la replicazione per auto-ispezione?"
+            natural="Nel Tom Thumb Algorithm applicato all'Universal Constructor di von Neumann, l'organismo non ripete un genoma fisso a ogni replicazione: copia il proprio stato attuale, mutazioni comprese. Qui la stessa idea è applicata al motore TTE-T4."
+          >
+            Il MessageData calcolato da una generazione diventa, tramite ricodifica omozigote, il genoma della generazione successiva. Senza mutazioni la linea collassa sempre a zero entro la generazione 3. Con mutazione ogni N generazioni: N≤3 mantiene la linea sempre viva, N≥4 introduce esattamente N−3 generazioni di silenzio per ciclo prima della resurrezione.
+          </SectionExplanation>
+
+          <button
+            type="button"
+            className="storyboard-cta"
+            onClick={() => setStoryboardOpen(true)}
+          >
+            <span className="storyboard-cta-icon" aria-hidden="true">📖</span>
+            <span className="storyboard-cta-copy">
+              <b>Racconta la storia</b>
+              <small>Nascita, senescenza, rinascita — 7 pannelli con l'analogia del limite di Hayflick</small>
+            </span>
+          </button>
+
+          <section className="toolbar" aria-label="Controlli della replicazione">
+            <div className="toolbar-actions">
+              <label>
+                <span>Generazioni</span>
+                <input
+                  type="number"
+                  min="1"
+                  max="40"
+                  value={lineageLength}
+                  onChange={(event) =>
+                    setLineageLength(Math.max(1, Math.min(40, Number(event.target.value) || 1)))
+                  }
+                />
+              </label>
+              <label>
+                <span>Muta ogni N generazioni (0 = mai)</span>
+                <input
+                  type="number"
+                  min="0"
+                  max="10"
+                  value={mutateEvery}
+                  onChange={(event) => setMutateEvery(Math.max(0, Number(event.target.value) || 0))}
+                />
+              </label>
+              <p className="mutation-preview">
+                {mutateEvery === 0
+                  ? "Nessuna mutazione: la linea collassa a zero entro la generazione 3 e non si riprende più."
+                  : expectedSilentWindow(mutateEvery) === 0
+                  ? `Con N=${mutateEvery}, la linea non muore mai (0 generazioni silenti per ciclo).`
+                  : `Con N=${mutateEvery}, attese ${expectedSilentWindow(mutateEvery)} generazion${expectedSilentWindow(mutateEvery) === 1 ? "e" : "i"} silenzios${expectedSilentWindow(mutateEvery) === 1 ? "a" : "e"} per ciclo prima della resurrezione.`}
+              </p>
+              <button type="button" onClick={() => setLineageSeed((s) => s + 1)}>
+                Rigenera (nuova mutazione casuale)
+              </button>
+            </div>
+          </section>
+
+          {storyboardOpen ? <StoryboardOverlay onClose={() => setStoryboardOpen(false)} /> : null}
+
+          <div className="dashboard">
+            <Card title="Linea di generazioni" className="wide">
+              <div className="tick-controls">
+                <button
+                  type="button"
+                  onClick={() => setSelectedGen((g) => Math.max(0, g - 1))}
+                  aria-label="Generazione precedente"
+                >
+                  − Gen
+                </button>
+                <label>
+                  <span>Generazione selezionata</span>
+                  <input
+                    type="range"
+                    min="0"
+                    max={lineage.length - 1}
+                    value={selectedGen}
+                    onChange={(event) => setSelectedGen(Number(event.target.value))}
+                  />
+                  <b>
+                    {selectedGen} / {lineage.length - 1}
+                  </b>
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setSelectedGen((g) => Math.min(lineage.length - 1, g + 1))}
+                  aria-label="Generazione successiva"
+                >
+                  + Gen
+                </button>
+              </div>
+
+              <div className="matrix-shell" style={{ display: "flex", gap: "4px", flexWrap: "wrap", marginTop: "0.75rem" }}>
+                {lineage.map((g, index) => (
+                  <button
+                    type="button"
+                    key={index}
+                    onClick={() => setSelectedGen(index)}
+                    className={`${index === selectedGen ? "active" : ""} ${g.isZeroState ? "off" : "on"}`}
+                    title={
+                      g.isZeroState
+                        ? `Generazione ${index}: stato silente`
+                        : `Generazione ${index}${g.mutation ? " · mutazione" : ""}`
+                    }
+                    aria-label={`Vai alla generazione ${index}`}
+                  >
+                    {index}
+                    {g.mutation ? " •" : ""}
+                  </button>
+                ))}
+              </div>
+            </Card>
+
+            <Card
+              title={`Generazione ${selectedGeneration.generation}`}
+              subtitle={
+                selectedGeneration.mutation
+                  ? `Mutazione sul locus ${selectedGeneration.mutation.locus}: ${selectedGeneration.mutation.from} → ${selectedGeneration.mutation.to}`
+                  : "Nessuna mutazione in questa generazione"
+              }
+            >
+              <p>MessageData (evidenziati i bit cambiati rispetto al genitore):</p>
+              <DiffBits values={selectedGeneration.cell.messageData} diffFlags={selectedDiff} />
+              <div className="metrics">
+                <Metric label="Codice PF8" value={selectedGeneration.cell.code} />
+                <Metric label="Stato" value={selectedGeneration.isZeroState ? "Silente (zero)" : "Attivo"} />
+                <Metric
+                  label="Generazioni al silenzio"
+                  value={
+                    generationsUntilSilenceDisplay(lineage, selectedGen)
+                  }
+                />
+              </div>
+            </Card>
+
+            <Card title="Genoma ricodificato (omozigote)" className="wide">
+              <Matrix matrix={selectedGeneration.genome} showCoordinates />
+            </Card>
+
+            <Card title="Posizione PF8 della generazione" className="wide">
+              <PF8Grid counts={db.pf8.counts} active={selectedGeneration.cell.pf8} />
+            </Card>
           </div>
         </>
       )}

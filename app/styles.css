@@ -237,6 +237,37 @@ h1 {
   line-height: 1.5;
 }
 
+.cross-tab-link {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px dashed #dce5e5;
+  color: #6a7b7b;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.link-button {
+  display: inline;
+  padding: 0;
+  border: none;
+  background: none;
+  color: #183c3f;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.link-button:hover {
+  color: #d99a3b;
+}
+
+.mutation-preview {
+  margin: 4px 0 0;
+  font-size: 0.85rem;
+  color: #6a7b7b;
+  flex-basis: 100%;
+}
+
 .matrix-shell {
   display: flex;
   justify-content: center;
@@ -334,6 +365,11 @@ h1 {
   border-radius: 10px;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-weight: 900;
+}
+
+.bits span.changed {
+  outline: 2px solid #d99a3b;
+  outline-offset: 2px;
 }
 
 .metrics {
@@ -713,6 +749,151 @@ body.modal-open {
   .help-modal-footer {
     padding: 0 20px 20px;
   }
+}
+
+/* Storyboard "Nascita, senescenza, rinascita" (tab Replicazione) */
+
+.storyboard-cta {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  width: 100%;
+  margin: 14px 0 18px;
+  padding: 18px 22px;
+  border: none;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #1d6265 0%, #173f42 100%);
+  box-shadow: 0 14px 34px rgb(29 98 101 / 30%);
+  cursor: pointer;
+  text-align: left;
+}
+
+.storyboard-cta:hover {
+  box-shadow: 0 18px 40px rgb(29 98 101 / 38%);
+}
+
+.storyboard-cta-icon {
+  flex: 0 0 auto;
+  font-size: 2.6rem;
+  line-height: 1;
+}
+
+.storyboard-cta-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.storyboard-cta-copy b {
+  color: white;
+  font-size: 1.15rem;
+}
+
+.storyboard-cta-copy small {
+  color: #cfe6e5;
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+
+.storyboard-modal {
+  width: min(720px, 100%);
+}
+
+.storyboard-content {
+  min-height: 280px;
+}
+
+.storyboard-panel {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.storyboard-panel-icon {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  color: white;
+  background: #1d6265;
+  font-weight: 900;
+}
+
+.storyboard-panel-body h3 {
+  margin: 0 0 10px;
+  color: #173f42;
+}
+
+.storyboard-panel-body p {
+  margin: 10px 0 0;
+  color: #344b4d;
+  line-height: 1.65;
+}
+
+.storyboard-panel-meta {
+  margin: 10px 0 0 !important;
+  color: #6a7b7b !important;
+  font-size: 0.85rem !important;
+}
+
+.storyboard-panel-natural {
+  padding: 12px 14px;
+  border-left: 4px solid #76aaa8;
+  border-radius: 0 12px 12px 0;
+  background: #f4f9f8;
+  font-size: 0.92rem !important;
+}
+
+.storyboard-cycle-controls {
+  margin-top: 10px;
+}
+
+.storyboard-cycle-controls button {
+  border: 1px solid #c9dcda;
+  border-radius: 9px;
+  padding: 7px 12px;
+  background: white;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.storyboard-progress {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 4px 24px 0;
+}
+
+.storyboard-progress button {
+  width: 9px;
+  height: 9px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: #d3e1e0;
+  cursor: pointer;
+}
+
+.storyboard-progress button.active {
+  background: #1d6265;
+}
+
+.storyboard-footer {
+  justify-content: space-between !important;
+}
+
+.storyboard-footer button:first-child {
+  color: #244f51;
+  background: white;
+  border: 1px solid #c9dcda;
+  box-shadow: none;
+}
+
+.storyboard-footer button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 /* Avatar e rifinitura del laboratorio fenotipico */

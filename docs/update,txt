@@ -1,0 +1,19 @@
+Aggiunto il tab Replicazione (self-inspection stile Tom Thumb Algorithm)
+
+- Nuovo lib/replicationEngine.js: replicazione per auto-ispezione del
+  motore T4 (il MessageData di una generazione diventa il genoma
+  omozigote della successiva). Verificato per esaustione su tutti i
+  65.536 genomi 4x4: collasso a zero garantito entro gen. 3 senza
+  mutazioni; con mutazione ogni N generazioni, silenzio = max(0, N-3)
+  per ciclo (expectedSilentWindow).
+- Nuovo tab "Replicazione" in App.jsx, posizionato dopo Memoria:
+  stepper di generazioni, diff dei bit evidenziato, anteprima della
+  finestra di silenzio attesa.
+- Storyboard didattica "Nascita, senescenza, rinascita" (7 pannelli,
+  analogia col limite di Hayflick/telomerasi, con avvertenza sui
+  limiti dell'analogia), aperta da CTA prominente in cima al tab.
+  Dati calcolati una volta con parametri fissi, indipendenti dai
+  controlli interattivi dell'utente.
+- Collegamento da Ispezione verso Replicazione per continuità
+  narrativa tra i tab.
+- Fix package.json (nome/descrizione residui da un altro progetto).
