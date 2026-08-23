@@ -1,24 +1,38 @@
 "use client";
 
-import { Children, cloneElement, isValidElement, useEffect, useMemo, useState } from "react";
-import db from "./data/pf8-database.json";
 import {
-  DEFAULT_GENOME_4X4,
-  GENETIC_REGIONS,
-  locusDescriptor,
-  cellAtTick,
-  cloneMatrix,
-  runCompleteT4Cell,
-} from "./lib/t4CompleteCell.js";
-import { buildPF8Profile, phenotypeDescriptor } from "./lib/pf8.js";
+  Children,
+  cloneElement,
+  isValidElement,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import PhenotypeAvatar from "./components/PhenotypeAvatar.jsx";
+import db from "./data/pf8-database.json";
 import {
   BIOLOGY_GLOSSARY_ALIASES,
   BIOLOGY_GLOSSARY_BY_ALIAS,
   MODEL_GLOSSARY_ALIASES,
   MODEL_GLOSSARY_BY_ALIAS,
 } from "./lib/biologyGlossary.js";
-import { runReplicationLineage, expectedSilentWindow } from "./lib/replicationEngine.js";
+import {
+  buildPF8Profile,
+  decodePhenotype,
+  phenotypeDescriptor,
+} from "./lib/pf8.js";
+import {
+  expectedSilentWindow,
+  runReplicationLineage,
+} from "./lib/replicationEngine.js";
+import {
+  cellAtTick,
+  cloneMatrix,
+  DEFAULT_GENOME_4X4,
+  GENETIC_REGIONS,
+  locusDescriptor,
+  runCompleteT4Cell,
+} from "./lib/t4CompleteCell.js";
 
 const tabs = [
   "Simulatore",
@@ -40,12 +54,12 @@ const pct = new Intl.NumberFormat("it-IT", {
   maximumFractionDigits: 3,
 });
 
-
 const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-const glossaryAliases = [...MODEL_GLOSSARY_ALIASES, ...BIOLOGY_GLOSSARY_ALIASES].sort(
-  (a, b) => b.length - a.length,
-);
+const glossaryAliases = [
+  ...MODEL_GLOSSARY_ALIASES,
+  ...BIOLOGY_GLOSSARY_ALIASES,
+].sort((a, b) => b.length - a.length);
 
 const glossaryTermPattern = new RegExp(
   `(?<![\\p{L}\\p{N}_])(${glossaryAliases.map(escapeRegExp).join("|")})(?![\\p{L}\\p{N}_])`,
@@ -54,7 +68,11 @@ const glossaryTermPattern = new RegExp(
 
 function BiologyTerm({ children, entry }) {
   return (
-    <span className="biology-term" tabIndex={0} aria-label={`${children}: ${entry.definition}`}>
+    <span
+      className="biology-term"
+      tabIndex={0}
+      aria-label={`${children}: ${entry.definition}`}
+    >
       {children}
       <span className="biology-tooltip" role="tooltip">
         <b>{entry.term}</b>
@@ -76,7 +94,9 @@ function ModelTerm({ children, entry }) {
         <b>{entry.term}</b>
         <span className="tooltip-kind">Termine del modello</span>
         <span>{entry.definition}</span>
-        <span className="tooltip-analogy"><strong>Analogia biologica:</strong> {entry.analogy}</span>
+        <span className="tooltip-analogy">
+          <strong>Analogia biologica:</strong> {entry.analogy}
+        </span>
       </span>
     </span>
   );
@@ -122,7 +142,9 @@ function GlossaryContent({ children }) {
     });
   };
 
-  return Children.map(children, (child, index) => renderNode(child, `root-${index}`));
+  return Children.map(children, (child, index) =>
+    renderNode(child, `root-${index}`),
+  );
 }
 
 const phaseLabels = {
@@ -225,7 +247,7 @@ const TOUR_STEPS = [
     tab: "Genoma",
     title: "Il punto di partenza",
     description:
-      "Osserva la matrice 4×4: quattro regioni genetiche astratte, ciascuna con due loci (A e B), ciascun locus con un allele materno e uno paterno. Prova a modificare qualche allele: qui il genoma è ancora \"grezzo\", non tradotto in nulla.",
+      'Osserva la matrice 4×4: quattro regioni genetiche astratte, ciascuna con due loci (A e B), ciascun locus con un allele materno e uno paterno. Prova a modificare qualche allele: qui il genoma è ancora "grezzo", non tradotto in nulla.',
   },
   {
     tab: "Mendel",
@@ -235,7 +257,7 @@ const TOUR_STEPS = [
   },
   {
     tab: "TTE-T4",
-    title: "Il motore che \"legge\" il genoma",
+    title: 'Il motore che "legge" il genoma',
     description:
       "Ogni tick confronta un locus con quello a due posizioni di distanza e calcola lo XOR tra i due, scrivendo il risultato in memoria. Il genoma non cambia mai: cambia solo cosa viene letto e quando.",
   },
@@ -249,13 +271,13 @@ const TOUR_STEPS = [
     tab: "PF8",
     title: "Dal messaggio al codice",
     description:
-      "I primi sei bit di MessageData diventano il codice PF8: i primi tre indicano la riga, gli ultimi tre la colonna di una griglia 8×8. Qui vedi la cella che \"ospita\" il fenotipo che stai costruendo.",
+      'I primi sei bit di MessageData diventano il codice PF8: i primi tre indicano la riga, gli ultimi tre la colonna di una griglia 8×8. Qui vedi la cella che "ospita" il fenotipo che stai costruendo.',
   },
   {
     tab: "Fenotipo",
     title: "Il risultato leggibile",
     description:
-      "I sei bit PF8 si traducono in sesso, pelle, capelli, occhi, tolleranza al lattosio e visione, con il ritratto a comporli visivamente. È il primo punto del tour in cui il modello \"si vede\".",
+      'I sei bit PF8 si traducono in sesso, pelle, capelli, occhi, tolleranza al lattosio e visione, con il ritratto a comporli visivamente. È il primo punto del tour in cui il modello "si vede".',
   },
   {
     tab: "Ispezione",
@@ -267,7 +289,7 @@ const TOUR_STEPS = [
     tab: "Statistiche",
     title: "Dal singolo genoma alla popolazione",
     description:
-      "Cambio di scala: da \"questo genoma produce questo fenotipo\" a come si distribuiscono 43.046.721 genomi possibili sulle 64 celle PF8. Gli esiti non sono equiprobabili.",
+      'Cambio di scala: da "questo genoma produce questo fenotipo" a come si distribuiscono 43.046.721 genomi possibili sulle 64 celle PF8. Gli esiti non sono equiprobabili.',
   },
   {
     tab: "Replicazione",
@@ -301,10 +323,20 @@ function Bits({ values }) {
   );
 }
 
-function Matrix({ matrix, editable = false, onToggle, highlight, showCoordinates = false }) {
+function Matrix({
+  matrix,
+  editable = false,
+  onToggle,
+  highlight,
+  showCoordinates = false,
+}) {
   return (
     <div className="matrix-shell">
-      <div className="matrix" role="grid" aria-label="Matrice quattro per quattro">
+      <div
+        className="matrix"
+        role="grid"
+        aria-label="Matrice quattro per quattro"
+      >
         {matrix.flatMap((row, rowIndex) =>
           row.map((value, columnIndex) => (
             <button
@@ -351,7 +383,8 @@ function PF8Grid({ counts, active, trail }) {
         {counts.flatMap((row, rowIndex) =>
           row.map((count, columnIndex) => {
             const key = `${rowIndex}-${columnIndex}`;
-            const isActive = active.row === rowIndex && active.col === columnIndex;
+            const isActive =
+              active.row === rowIndex && active.col === columnIndex;
             const trailPoints = trailByCell.get(key) ?? [];
             const trailLabel =
               trailPoints.length > 3
@@ -360,17 +393,30 @@ function PF8Grid({ counts, active, trail }) {
             // Il bit "sesso" è il più significativo della riga (sesso, pelle, capelli):
             // righe 0-3 = femmina, righe 4-7 = maschio. Separazione netta, nessuna riga mista.
             const hue = rowIndex < 4 ? "220 38 38" : "37 99 235";
+            const cellCode =
+              rowIndex.toString(2).padStart(3, "0") +
+              columnIndex.toString(2).padStart(3, "0");
+            const cellTraits = decodePhenotype(cellCode).traits;
+            const cellTooltip = `PF8 ${cellCode} — ${cellTraits.map((trait) => trait.label).join(", ")}`;
 
             return (
               <div
                 key={key}
-                className={[isActive ? "selected" : "", trailPoints.length ? "on-trail" : ""]
+                className={[
+                  isActive ? "selected" : "",
+                  trailPoints.length ? "on-trail" : "",
+                ]
                   .filter(Boolean)
                   .join(" ")}
                 style={{
-                  "--density": (0.14 + 0.58 * Math.pow(count / max, 1.8)).toFixed(3),
+                  "--density": (
+                    0.14 +
+                    0.58 * Math.pow(count / max, 1.8)
+                  ).toFixed(3),
                   "--hue": hue,
                 }}
+                title={cellTooltip}
+                aria-label={cellTooltip}
               >
                 <b>
                   {rowIndex},{columnIndex}
@@ -410,19 +456,27 @@ function PF8Grid({ counts, active, trail }) {
 
 function generationsUntilSilenceDisplay(lineage, fromIndex) {
   for (let i = fromIndex; i < lineage.length; i++) {
-    if (lineage[i].isZeroState) return i === fromIndex ? "già silente" : `${i - fromIndex}`;
+    if (lineage[i].isZeroState)
+      return i === fromIndex ? "già silente" : `${i - fromIndex}`;
   }
   return `oltre l'orizzonte visibile (${lineage.length - 1 - fromIndex}+)`;
 }
 
 function DiffBits({ values, diffFlags }) {
   return (
-    <div className="bits" aria-label="Sequenza di bit con differenze evidenziate">
+    <div
+      className="bits"
+      aria-label="Sequenza di bit con differenze evidenziate"
+    >
       {values.map((value, index) => (
         <span
           className={`${value ? "on" : "off"} ${diffFlags?.[index] ? "changed" : ""}`}
           key={index}
-          title={diffFlags?.[index] ? "Cambiato rispetto alla generazione precedente" : undefined}
+          title={
+            diffFlags?.[index]
+              ? "Cambiato rispetto alla generazione precedente"
+              : undefined
+          }
         >
           {value}
         </span>
@@ -452,16 +506,29 @@ function buildStoryboardLineage() {
   });
 }
 
-function StoryboardPanel({ lineage, genIndex, diffAgainst, badge, title, natural, children }) {
+function StoryboardPanel({
+  lineage,
+  genIndex,
+  diffAgainst,
+  badge,
+  title,
+  natural,
+  children,
+}) {
   const gen = lineage[genIndex];
-  const parent = diffAgainst !== null && diffAgainst !== undefined ? lineage[diffAgainst] : null;
+  const parent =
+    diffAgainst !== null && diffAgainst !== undefined
+      ? lineage[diffAgainst]
+      : null;
   const diffFlags = parent
     ? parent.cell.messageData.map((bit, i) => bit !== gen.cell.messageData[i])
     : null;
 
   return (
     <div className="storyboard-panel">
-      <div className="storyboard-panel-icon" aria-hidden="true">{badge}</div>
+      <div className="storyboard-panel-icon" aria-hidden="true">
+        {badge}
+      </div>
       <div className="storyboard-panel-body">
         <h3>{title}</h3>
         {gen ? (
@@ -469,7 +536,9 @@ function StoryboardPanel({ lineage, genIndex, diffAgainst, badge, title, natural
             <DiffBits values={gen.cell.messageData} diffFlags={diffFlags} />
             <p className="storyboard-panel-meta">
               Generazione {gen.generation} · codice {gen.cell.code}
-              {gen.mutation ? ` · mutazione sul locus ${gen.mutation.locus} (${gen.mutation.from}→${gen.mutation.to})` : ""}
+              {gen.mutation
+                ? ` · mutazione sul locus ${gen.mutation.locus} (${gen.mutation.from}→${gen.mutation.to})`
+                : ""}
               {gen.isZeroState ? " · stato silente" : ""}
             </p>
           </>
@@ -512,9 +581,10 @@ function StoryboardOverlay({ onClose }) {
       badge="1"
       title="Nascita"
     >
-      Una cellula nasce con un genoma completo. In una cellula umana, il DNA include anche i telomeri:
-      sequenze ripetute non codificanti alle estremità dei cromosomi, che funzionano come il tappo di
-      plastica in fondo a un laccio da scarpe — proteggono, non contengono istruzioni.
+      Una cellula nasce con un genoma completo. In una cellula umana, il DNA
+      include anche i telomeri: sequenze ripetute non codificanti alle estremità
+      dei cromosomi, che funzionano come il tappo di plastica in fondo a un
+      laccio da scarpe — proteggono, non contengono istruzioni.
     </StoryboardPanel>,
 
     <StoryboardPanel
@@ -525,10 +595,12 @@ function StoryboardOverlay({ onClose }) {
       badge="2"
       title="Prima divisione"
     >
-      La cellula si replica per auto-ispezione: la figlia eredita ciò che la madre è diventata (il suo
-      MessageData calcolato), non il genoma originale. Nel corpo umano, ogni divisione cellulare accorcia
-      leggermente i telomeri — le DNA polimerasi non riescono a copiare fino in fondo l'estremità di un
-      filamento lineare: è un limite meccanico della replicazione, non un errore.
+      La cellula si replica per auto-ispezione: la figlia eredita ciò che la
+      madre è diventata (il suo MessageData calcolato), non il genoma originale.
+      Nel corpo umano, ogni divisione cellulare accorcia leggermente i telomeri
+      — le DNA polimerasi non riescono a copiare fino in fondo l'estremità di un
+      filamento lineare: è un limite meccanico della replicazione, non un
+      errore.
     </StoryboardPanel>,
 
     <StoryboardPanel
@@ -539,9 +611,10 @@ function StoryboardOverlay({ onClose }) {
       badge="3"
       title="Seconda divisione"
     >
-      L'informazione continua a impoverirsi, ma il fenotipo (PF8) sembra ancora vitale. Anche i telomeri
-      accorciati non sono ancora abbastanza corti da attivare un allarme — la cellula biologica continua a
-      dividersi normalmente, senza segni visibili del conto alla rovescia in corso.
+      L'informazione continua a impoverirsi, ma il fenotipo (PF8) sembra ancora
+      vitale. Anche i telomeri accorciati non sono ancora abbastanza corti da
+      attivare un allarme — la cellula biologica continua a dividersi
+      normalmente, senza segni visibili del conto alla rovescia in corso.
     </StoryboardPanel>,
 
     <StoryboardPanel
@@ -552,11 +625,13 @@ function StoryboardOverlay({ onClose }) {
       badge="4"
       title="Senescenza"
     >
-      Il silenzio arriva sempre qui: verificato su tutti i 65.536 genomi 4×4 possibili, mai oltre la
-      generazione 3. È il limite di Hayflick del nostro motore — un contatore fisso incorporato nella
-      struttura stessa della regola di trasformazione, non nel singolo genoma di partenza. Nel corpo, quando
-      i telomeri scendono sotto una soglia critica, la cellula rileva la cosa come un danno al DNA e blocca
-      la divisione: senescenza replicativa. La cellula non muore, semplicemente smette di dividersi.
+      Il silenzio arriva sempre qui: verificato su tutti i 65.536 genomi 4×4
+      possibili, mai oltre la generazione 3. È il limite di Hayflick del nostro
+      motore — un contatore fisso incorporato nella struttura stessa della
+      regola di trasformazione, non nel singolo genoma di partenza. Nel corpo,
+      quando i telomeri scendono sotto una soglia critica, la cellula rileva la
+      cosa come un danno al DNA e blocca la divisione: senescenza replicativa.
+      La cellula non muore, semplicemente smette di dividersi.
     </StoryboardPanel>,
 
     <StoryboardPanel
@@ -567,15 +642,18 @@ function StoryboardOverlay({ onClose }) {
       badge="5"
       title="Il bivio (telomerasi)"
     >
-      Con una mutazione ogni 4 generazioni, la cellula resta silente per esattamente 1 generazione, poi
-      rinasce. Nel corpo, l'enzima telomerasi può ricostruire i telomeri e resettare il contatore — è attivo
-      nelle cellule staminali (che devono rifornire i tessuti per tutta la vita) ma silenziato nella maggior
-      parte delle cellule somatiche adulte. Non a caso: dare a ogni cellula la capacità di dividersi
-      all'infinito sarebbe pericoloso.
+      Con una mutazione ogni 4 generazioni, la cellula resta silente per
+      esattamente 1 generazione, poi rinasce. Nel corpo, l'enzima telomerasi può
+      ricostruire i telomeri e resettare il contatore — è attivo nelle cellule
+      staminali (che devono rifornire i tessuti per tutta la vita) ma silenziato
+      nella maggior parte delle cellule somatiche adulte. Non a caso: dare a
+      ogni cellula la capacità di dividersi all'infinito sarebbe pericoloso.
     </StoryboardPanel>,
 
     <div className="storyboard-panel" key="p5">
-      <div className="storyboard-panel-icon" aria-hidden="true">6</div>
+      <div className="storyboard-panel-icon" aria-hidden="true">
+        6
+      </div>
       <div className="storyboard-panel-body">
         <h3>Equilibrio, non progresso</h3>
         <DiffBits
@@ -594,31 +672,38 @@ function StoryboardOverlay({ onClose }) {
           </button>
         </div>
         <p>
-          La mutazione salva la linea dall'estinzione, ma non garantisce novità: qui produce un'orbita
-          ripetitiva di 4 generazioni (3 vive + 1 silente), non una vera deriva evolutiva. È un'eco
-          imperfetta ma reale di un fatto inquietante: la telomerasi è riattivata nella maggior parte delle
-          cellule tumorali. La linea HeLa, coltivata ininterrottamente dal 1951, discende da cellule che
-          hanno riacceso questo meccanismo — non "guarendo" la cellula, ma rendendola capace di proliferare
-          senza limite.
+          La mutazione salva la linea dall'estinzione, ma non garantisce novità:
+          qui produce un'orbita ripetitiva di 4 generazioni (3 vive + 1
+          silente), non una vera deriva evolutiva. È un'eco imperfetta ma reale
+          di un fatto inquietante: la telomerasi è riattivata nella maggior
+          parte delle cellule tumorali. La linea HeLa, coltivata
+          ininterrottamente dal 1951, discende da cellule che hanno riacceso
+          questo meccanismo — non "guarendo" la cellula, ma rendendola capace di
+          proliferare senza limite.
         </p>
       </div>
     </div>,
 
     <div className="storyboard-panel" key="p6">
-      <div className="storyboard-panel-icon" aria-hidden="true">7</div>
+      <div className="storyboard-panel-icon" aria-hidden="true">
+        7
+      </div>
       <div className="storyboard-panel-body">
         <h3>Dove l'analogia si rompe</h3>
         <p>
-          Due avvertenze oneste. Primo: il nostro collasso è un fatto matematico (la trasformazione XOR
-          shift-2 non è iniettiva su un ciclo di 8), quello di Hayflick è un fatto biochimico (la lunghezza
-          fisica del DNA telomerico) — meccanismi del tutto diversi che producono un declino a soglia fissa
-          per ragioni non correlate.
+          Due avvertenze oneste. Primo: il nostro collasso è un fatto matematico
+          (la trasformazione XOR shift-2 non è iniettiva su un ciclo di 8),
+          quello di Hayflick è un fatto biochimico (la lunghezza fisica del DNA
+          telomerico) — meccanismi del tutto diversi che producono un declino a
+          soglia fissa per ragioni non correlate.
         </p>
         <p>
-          Secondo: il nostro "stato zero" è un vicolo cieco innocuo, non una salvaguardia — nella biologia
-          reale, il limite di Hayflick è considerato un meccanismo anti-tumorale: fermare una linea cellulare
-          dopo un numero finito di cicli limita quanto danno accumulato può diffondersi nell'organismo. Il
-          nostro modello non ha nulla di equivalente a questa funzione protettiva.
+          Secondo: il nostro "stato zero" è un vicolo cieco innocuo, non una
+          salvaguardia — nella biologia reale, il limite di Hayflick è
+          considerato un meccanismo anti-tumorale: fermare una linea cellulare
+          dopo un numero finito di cicli limita quanto danno accumulato può
+          diffondersi nell'organismo. Il nostro modello non ha nulla di
+          equivalente a questa funzione protettiva.
         </p>
       </div>
     </div>,
@@ -635,17 +720,29 @@ function StoryboardOverlay({ onClose }) {
       >
         <div className="help-modal-heading">
           <div>
-            <p className="help-kicker">Storia · Replicazione per auto-ispezione</p>
+            <p className="help-kicker">
+              Storia · Replicazione per auto-ispezione
+            </p>
             <h2 id="storyboard-title">Nascita, senescenza, rinascita</h2>
           </div>
-          <button type="button" className="modal-close" onClick={onClose} aria-label="Chiudi la storia">
+          <button
+            type="button"
+            className="modal-close"
+            onClick={onClose}
+            aria-label="Chiudi la storia"
+          >
             ×
           </button>
         </div>
 
-        <div className="help-modal-content storyboard-content">{panels[step]}</div>
+        <div className="help-modal-content storyboard-content">
+          {panels[step]}
+        </div>
 
-        <div className="storyboard-progress" aria-label="Avanzamento della storia">
+        <div
+          className="storyboard-progress"
+          aria-label="Avanzamento della storia"
+        >
           {panels.map((_, index) => (
             <button
               type="button"
@@ -658,11 +755,18 @@ function StoryboardOverlay({ onClose }) {
         </div>
 
         <div className="help-modal-footer storyboard-footer">
-          <button type="button" onClick={() => setStep((s) => Math.max(0, s - 1))} disabled={step === 0}>
+          <button
+            type="button"
+            onClick={() => setStep((s) => Math.max(0, s - 1))}
+            disabled={step === 0}
+          >
             ← Indietro
           </button>
           {step < panels.length - 1 ? (
-            <button type="button" onClick={() => setStep((s) => Math.min(panels.length - 1, s + 1))}>
+            <button
+              type="button"
+              onClick={() => setStep((s) => Math.min(panels.length - 1, s + 1))}
+            >
               Avanti →
             </button>
           ) : (
@@ -688,10 +792,14 @@ function Metric({ label, value }) {
 function SectionExplanation({ badge, title, children, natural }) {
   return (
     <aside className="section-explanation" aria-label={title}>
-      <div className="section-explanation-icon" aria-hidden="true">{badge}</div>
+      <div className="section-explanation-icon" aria-hidden="true">
+        {badge}
+      </div>
       <div>
         <h3>{title}</h3>
-        <p><GlossaryContent>{children}</GlossaryContent></p>
+        <p>
+          <GlossaryContent>{children}</GlossaryContent>
+        </p>
         {natural ? (
           <p className="section-explanation-natural">
             <GlossaryContent>{natural}</GlossaryContent>
@@ -733,7 +841,12 @@ function HelpModal({ tab, onClose }) {
             <p className="help-kicker">Guida alla sezione · {tab}</p>
             <h2 id="help-modal-title">{help.title}</h2>
           </div>
-          <button type="button" className="modal-close" onClick={onClose} aria-label="Chiudi la guida">
+          <button
+            type="button"
+            className="modal-close"
+            onClick={onClose}
+            aria-label="Chiudi la guida"
+          >
             ×
           </button>
         </div>
@@ -745,7 +858,9 @@ function HelpModal({ tab, onClose }) {
         </div>
 
         <div className="help-modal-footer">
-          <button type="button" onClick={onClose}>Ho capito</button>
+          <button type="button" onClick={onClose}>
+            Ho capito
+          </button>
         </div>
       </section>
     </div>
@@ -769,7 +884,8 @@ function TourPanel({ stepIndex, onNext, onPrev, onClose }) {
     <section className="tour-panel" role="dialog" aria-label="Tour guidato">
       <div className="tour-panel-text">
         <p className="tour-kicker">
-          Tour guidato · Passo {stepIndex + 1} di {TOUR_STEPS.length} · {step.title}
+          Tour guidato · Passo {stepIndex + 1} di {TOUR_STEPS.length} ·{" "}
+          {step.title}
         </p>
         <p className="tour-panel-description">{step.description}</p>
       </div>
@@ -777,7 +893,10 @@ function TourPanel({ stepIndex, onNext, onPrev, onClose }) {
       <div className="tour-panel-controls">
         <div className="tour-panel-progress" aria-hidden="true">
           {TOUR_STEPS.map((tourStep, index) => (
-            <span key={tourStep.tab} className={index === stepIndex ? "active" : ""} />
+            <span
+              key={tourStep.tab}
+              className={index === stepIndex ? "active" : ""}
+            />
           ))}
         </div>
 
@@ -788,7 +907,12 @@ function TourPanel({ stepIndex, onNext, onPrev, onClose }) {
           <button type="button" className="primary" onClick={onNext}>
             {isLast ? "Fine tour" : "Avanti"}
           </button>
-          <button type="button" className="modal-close" onClick={onClose} aria-label="Chiudi il tour guidato">
+          <button
+            type="button"
+            className="modal-close"
+            onClick={onClose}
+            aria-label="Chiudi il tour guidato"
+          >
             ×
           </button>
         </div>
@@ -796,7 +920,6 @@ function TourPanel({ stepIndex, onNext, onPrev, onClose }) {
     </section>
   );
 }
-
 
 const MUTATION_EFFECTS = {
   neutral: { icon: "○", label: "Mutazione neutra" },
@@ -812,11 +935,13 @@ function changedPhenotypeTraits(beforeCode, afterCode) {
     const afterTrait = afterTraits[index];
     if (!afterTrait || beforeTrait.key === afterTrait.key) return [];
 
-    return [{
-      axis: beforeTrait.axis,
-      before: beforeTrait.label,
-      after: afterTrait.label,
-    }];
+    return [
+      {
+        axis: beforeTrait.axis,
+        before: beforeTrait.label,
+        after: afterTrait.label,
+      },
+    ];
   });
 }
 
@@ -864,16 +989,28 @@ export default function App() {
 
   const cell = useMemo(() => cellAtTick(genome, tick), [genome, tick]);
   const complete = useMemo(() => runCompleteT4Cell(genome), [genome]);
-  const profile = useMemo(() => buildPF8Profile(db, complete.code), [complete.code]);
-  const phenotype = useMemo(() => phenotypeDescriptor(complete.code), [complete.code]);
-  const currentProfile = useMemo(() => buildPF8Profile(db, cell.code), [cell.code]);
+  const profile = useMemo(
+    () => buildPF8Profile(db, complete.code),
+    [complete.code],
+  );
+  const phenotype = useMemo(
+    () => phenotypeDescriptor(complete.code),
+    [complete.code],
+  );
+  const currentProfile = useMemo(
+    () => buildPF8Profile(db, cell.code),
+    [cell.code],
+  );
   const selectedT4Event = complete.history[Math.min(tick, 7)];
   const selectedT4IsPending = tick < 8;
 
   const activeLocusIndex = tick < 8 ? tick : null;
-  const activePartnerIndex = activeLocusIndex === null ? null : (activeLocusIndex + 2) % 8;
-  const activeLocus = activeLocusIndex === null ? null : locusDescriptor(activeLocusIndex);
-  const activePartner = activePartnerIndex === null ? null : locusDescriptor(activePartnerIndex);
+  const activePartnerIndex =
+    activeLocusIndex === null ? null : (activeLocusIndex + 2) % 8;
+  const activeLocus =
+    activeLocusIndex === null ? null : locusDescriptor(activeLocusIndex);
+  const activePartner =
+    activePartnerIndex === null ? null : locusDescriptor(activePartnerIndex);
 
   const locusState = (locusIndex) => {
     if (activeLocusIndex === null) return "processed";
@@ -949,8 +1086,8 @@ export default function App() {
           <p className="eyebrow">Artificial Cell Model</p>
           <h1>Artificial Cell Laboratory</h1>
           <p className="hero-description">
-            Modello T4 modulare: genoma, sviluppo temporale, memoria, PF8 e potenza
-            genomica.
+            Modello T4 modulare: genoma, sviluppo temporale, memoria, PF8 e
+            potenza genomica.
           </p>
         </div>
 
@@ -1015,7 +1152,9 @@ export default function App() {
         <div className="tick-controls">
           <button
             type="button"
-            onClick={() => setTick((currentTick) => Math.max(0, currentTick - 1))}
+            onClick={() =>
+              setTick((currentTick) => Math.max(0, currentTick - 1))
+            }
             aria-label="Riduci tick"
           >
             − Tick
@@ -1035,7 +1174,9 @@ export default function App() {
 
           <button
             type="button"
-            onClick={() => setTick((currentTick) => Math.min(8, currentTick + 1))}
+            onClick={() =>
+              setTick((currentTick) => Math.min(8, currentTick + 1))
+            }
             aria-label="Aumenta tick"
           >
             + Tick
@@ -1050,36 +1191,50 @@ export default function App() {
             title="Che cosa mostra il simulatore?"
             natural="In natura, il fenotipo emerge dall’attività coordinata di DNA, RNA, proteine e segnali cellulari. Qui la stessa idea è rappresentata da una catena digitale molto più semplice."
           >
-            Questa vista segue l’intera cellula: parte dagli alleli, applica la risoluzione mendeliana, esegue il motore T4 e mostra come memoria, MessageData e posizione PF8 cambiano durante gli otto tick.
+            Questa vista segue l’intera cellula: parte dagli alleli, applica la
+            risoluzione mendeliana, esegue il motore T4 e mostra come memoria,
+            MessageData e posizione PF8 cambiano durante gli otto tick.
           </SectionExplanation>
           <div className="dashboard simulator-dashboard">
-          <Card
-            title="Genoma 4×4"
-            subtitle="Clicca su un allele per modificarne il valore."
-          >
-            <Matrix matrix={genome} editable onToggle={toggle} />
-          </Card>
+            <Card
+              title="Genoma 4×4"
+              subtitle="Clicca su un allele per modificarne il valore."
+            >
+              <Matrix matrix={genome} editable onToggle={toggle} />
+            </Card>
 
-          <Card
-            title={`Memoria al tick ${tick}`}
-            subtitle="La cella evidenziata è l’ultima posizione scritta."
-          >
-            <Matrix matrix={cell.memory} highlight={cell.history.at(-1)?.address} />
-            <p className="technical-note">
-              Riga = tick mod 4 · Colonna = floor(tick / 4)
-            </p>
-          </Card>
+            <Card
+              title={`Memoria al tick ${tick}`}
+              subtitle="La cella evidenziata è l’ultima posizione scritta."
+            >
+              <Matrix
+                matrix={cell.memory}
+                highlight={cell.history.at(-1)?.address}
+              />
+              <p className="technical-note">
+                Riga = tick mod 4 · Colonna = floor(tick / 4)
+              </p>
+            </Card>
 
-          <Card title="Stato sintetico" className="wide summary-card">
-            <div className="metrics summary-metrics">
-              <Metric label="Fase" value={phaseLabels[cell.phase] ?? cell.phase} />
-              <Metric label="Loci" value={cell.loci.join("")} />
-              <Metric label="MessageData" value={cell.messageData.join("")} />
-              <Metric label="Codice PF8" value={cell.code} />
-              <Metric label="Coordinate" value={`(${cell.pf8.row}, ${cell.pf8.col})`} />
-              <Metric label="Potenza genomica" value={fmt.format(currentProfile.count)} />
-            </div>
-          </Card>
+            <Card title="Stato sintetico" className="wide summary-card">
+              <div className="metrics summary-metrics">
+                <Metric
+                  label="Fase"
+                  value={phaseLabels[cell.phase] ?? cell.phase}
+                />
+                <Metric label="Loci" value={cell.loci.join("")} />
+                <Metric label="MessageData" value={cell.messageData.join("")} />
+                <Metric label="Codice PF8" value={cell.code} />
+                <Metric
+                  label="Coordinate"
+                  value={`(${cell.pf8.row}, ${cell.pf8.col})`}
+                />
+                <Metric
+                  label="Potenza genomica"
+                  value={fmt.format(currentProfile.count)}
+                />
+              </div>
+            </Card>
           </div>
         </>
       )}
@@ -1089,42 +1244,60 @@ export default function App() {
           title="Genome Laboratory"
           subtitle="Quattro regioni genetiche, due loci diploidi per regione e sedici alleli complessivi."
         >
-          <aside className="genome-explanation" aria-label="Perché il tick non modifica il genoma">
-            <div className="genome-explanation-icon" aria-hidden="true">DNA</div>
+          <aside
+            className="genome-explanation"
+            aria-label="Perché il tick non modifica il genoma"
+          >
+            <div className="genome-explanation-icon" aria-hidden="true">
+              DNA
+            </div>
             <div>
               <h3>Perché i valori non cambiano con il tick?</h3>
               <p>
                 <GlossaryContent>
-                  Questa tabella mostra il <strong>genoma</strong>, cioè l’informazione ereditaria di partenza.
-                  Il tick fa avanzare la <strong>lettura</strong> dei loci da parte del Tom Thumb Engine, ma non
-                  riscrive gli alleli. Per questo cambiano le evidenziazioni, la memoria e il fenotipo in
-                  costruzione, mentre i valori 0 e 1 restano invariati.
+                  Questa tabella mostra il <strong>genoma</strong>, cioè
+                  l’informazione ereditaria di partenza. Il tick fa avanzare la{" "}
+                  <strong>lettura</strong> dei loci da parte del Tom Thumb
+                  Engine, ma non riscrive gli alleli. Per questo cambiano le
+                  evidenziazioni, la memoria e il fenotipo in costruzione,
+                  mentre i valori 0 e 1 restano invariati.
                 </GlossaryContent>
               </p>
               <p className="genome-explanation-natural">
                 <GlossaryContent>
-                  Anche nelle cellule reali, durante la normale espressione genica, il DNA viene letto per
-                  produrre RNA e proteine senza essere modificato nella sua sequenza.
+                  Anche nelle cellule reali, durante la normale espressione
+                  genica, il DNA viene letto per produrre RNA e proteine senza
+                  essere modificato nella sua sequenza.
                 </GlossaryContent>
               </p>
             </div>
           </aside>
 
-          <div className={`genome-tick-status ${tick >= 8 ? "complete" : "active"}`}>
+          <div
+            className={`genome-tick-status ${tick >= 8 ? "complete" : "active"}`}
+          >
             {tick >= 8 ? (
               <>
                 <b>Sviluppo completato</b>
-                <span>Tutti gli otto loci sono stati letti dal Tom Thumb Engine.</span>
+                <span>
+                  Tutti gli otto loci sono stati letti dal Tom Thumb Engine.
+                </span>
               </>
             ) : (
               <>
-                <b>Tick {tick}: lettura di {activeLocus.label}</b>
+                <b>
+                  Tick {tick}: lettura di {activeLocus.label}
+                </b>
                 <span>
-                  {activeLocus.fullLabel} · partner {activePartner.label} ({activePartner.fullLabel})
+                  {activeLocus.fullLabel} · partner {activePartner.label} (
+                  {activePartner.fullLabel})
                 </span>
               </>
             )}
-            <div className="genome-state-legend" aria-label="Legenda dello stato dei loci">
+            <div
+              className="genome-state-legend"
+              aria-label="Legenda dello stato dei loci"
+            >
               <span className="current">Locus corrente</span>
               <span className="partner">Locus partner</span>
               <span className="processed">Già elaborato</span>
@@ -1141,31 +1314,64 @@ export default function App() {
                   <th colSpan="2">Locus B</th>
                 </tr>
                 <tr>
-                  <th><span className="parent-origin maternal" aria-hidden="true">♀</span>Cromosoma materno</th>
-                  <th><span className="parent-origin paternal" aria-hidden="true">♂</span>Cromosoma paterno</th>
-                  <th><span className="parent-origin maternal" aria-hidden="true">♀</span>Cromosoma materno</th>
-                  <th><span className="parent-origin paternal" aria-hidden="true">♂</span>Cromosoma paterno</th>
+                  <th>
+                    <span className="parent-origin maternal" aria-hidden="true">
+                      ♀
+                    </span>
+                    Cromosoma materno
+                  </th>
+                  <th>
+                    <span className="parent-origin paternal" aria-hidden="true">
+                      ♂
+                    </span>
+                    Cromosoma paterno
+                  </th>
+                  <th>
+                    <span className="parent-origin maternal" aria-hidden="true">
+                      ♀
+                    </span>
+                    Cromosoma materno
+                  </th>
+                  <th>
+                    <span className="parent-origin paternal" aria-hidden="true">
+                      ♂
+                    </span>
+                    Cromosoma paterno
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {genome.map((row, rowIndex) => {
                   const locusAIndex = rowIndex;
                   const locusBIndex = rowIndex + 4;
-                  const rowStates = [locusState(locusAIndex), locusState(locusBIndex)];
+                  const rowStates = [
+                    locusState(locusAIndex),
+                    locusState(locusBIndex),
+                  ];
 
                   return (
                     <tr
                       key={GENETIC_REGIONS[rowIndex]}
-                      className={rowStates.includes("current") ? "contains-current" : rowStates.includes("partner") ? "contains-partner" : ""}
+                      className={
+                        rowStates.includes("current")
+                          ? "contains-current"
+                          : rowStates.includes("partner")
+                            ? "contains-partner"
+                            : ""
+                      }
                     >
                       <th>{GENETIC_REGIONS[rowIndex]}</th>
                       {row.map((value, columnIndex) => {
-                        const locusIndex = columnIndex < 2 ? locusAIndex : locusBIndex;
+                        const locusIndex =
+                          columnIndex < 2 ? locusAIndex : locusBIndex;
                         const state = locusState(locusIndex);
                         const descriptor = locusDescriptor(locusIndex);
 
                         return (
-                          <td key={columnIndex} className={`locus-cell ${state}`}>
+                          <td
+                            key={columnIndex}
+                            className={`locus-cell ${state}`}
+                          >
                             <small>{descriptor.label}</small>
                             <button
                               type="button"
@@ -1185,22 +1391,31 @@ export default function App() {
             </table>
           </div>
           {lastMutation ? (
-            <aside className={`mutation-effect mutation-effect--${lastMutation.effect}`} aria-live="polite">
+            <aside
+              className={`mutation-effect mutation-effect--${lastMutation.effect}`}
+              aria-live="polite"
+            >
               <span className="mutation-effect-icon" aria-hidden="true">
                 {MUTATION_EFFECTS[lastMutation.effect].icon}
               </span>
               <div>
                 <b>{MUTATION_EFFECTS[lastMutation.effect].label}</b>
                 <span>
-                  {lastMutation.locus.fullLabel}, allele di origine {lastMutation.origin}: {lastMutation.from} → {lastMutation.to}.
+                  {lastMutation.locus.fullLabel}, allele di origine{" "}
+                  {lastMutation.origin}: {lastMutation.from} → {lastMutation.to}
+                  .
                 </span>
                 {lastMutation.effect === "phenotype" ? (
                   <div className="mutation-phenotype-details">
-                    <small>Codice PF8: {lastMutation.beforeCode} → {lastMutation.afterCode}</small>
+                    <small>
+                      Codice PF8: {lastMutation.beforeCode} →{" "}
+                      {lastMutation.afterCode}
+                    </small>
                     <ul aria-label="Caratteri fenotipici modificati">
                       {lastMutation.changedTraits.map((trait) => (
                         <li key={trait.axis}>
-                          <strong>{trait.axis}</strong>: {trait.before} → {trait.after}
+                          <strong>{trait.axis}</strong>: {trait.before} →{" "}
+                          {trait.after}
                         </li>
                       ))}
                     </ul>
@@ -1210,16 +1425,33 @@ export default function App() {
             </aside>
           ) : (
             <aside className="mutation-effect mutation-effect--idle">
-              <span className="mutation-effect-icon" aria-hidden="true">◇</span>
+              <span className="mutation-effect-icon" aria-hidden="true">
+                ◇
+              </span>
               <div>
                 <b>Indicatore di mutazione</b>
-                <span>Clicca un allele per verificare l’effetto della variazione. Con una singola mutazione, il motore T4 produce normalmente un esito neutro oppure un cambiamento fenotipico; lo stato “solo loci” resta disponibile per future regole o mutazioni multiple.</span>
+                <span>
+                  Clicca un allele per verificare l’effetto della variazione.
+                  Con una singola mutazione, il motore T4 produce normalmente un
+                  esito neutro oppure un cambiamento fenotipico; lo stato “solo
+                  loci” resta disponibile per future regole o mutazioni
+                  multiple.
+                </span>
               </div>
             </aside>
           )}
 
           <p className="technical-note">
-            In ogni locus, <span className="parent-origin maternal" aria-hidden="true">♀</span> indica l’allele sul cromosoma materno e <span className="parent-origin paternal" aria-hidden="true">♂</span> quello sul cromosoma paterno. Il tick non cambia il DNA: evidenzia quali loci il motore sta leggendo.
+            In ogni locus,{" "}
+            <span className="parent-origin maternal" aria-hidden="true">
+              ♀
+            </span>{" "}
+            indica l’allele sul cromosoma materno e{" "}
+            <span className="parent-origin paternal" aria-hidden="true">
+              ♂
+            </span>{" "}
+            quello sul cromosoma paterno. Il tick non cambia il DNA: evidenzia
+            quali loci il motore sta leggendo.
           </p>
         </Card>
       )}
@@ -1234,7 +1466,9 @@ export default function App() {
             title="Come vengono risolti gli alleli?"
             natural="È l’analogo semplificato della dominanza mendeliana completa: un allele dominante può manifestarsi anche quando l’altra copia è recessiva. Nella biologia reale esistono anche codominanza e dominanza incompleta."
           >
-            Ogni locus contiene un allele sul cromosoma materno e uno sul cromosoma paterno. La OR li riduce a un solo valore espresso: soltanto 0 e 0 producono 0; tutte le altre coppie producono 1.
+            Ogni locus contiene un allele sul cromosoma materno e uno sul
+            cromosoma paterno. La OR li riduce a un solo valore espresso:
+            soltanto 0 e 0 producono 0; tutte le altre coppie producono 1.
           </SectionExplanation>
           <div className="table-wrap">
             <table className="genetics-table mendel-table">
@@ -1245,11 +1479,31 @@ export default function App() {
                   <th colSpan="3">Locus B</th>
                 </tr>
                 <tr>
-                  <th><span className="parent-origin maternal" aria-hidden="true">♀</span>Allele materno</th>
-                  <th><span className="parent-origin paternal" aria-hidden="true">♂</span>Allele paterno</th>
+                  <th>
+                    <span className="parent-origin maternal" aria-hidden="true">
+                      ♀
+                    </span>
+                    Allele materno
+                  </th>
+                  <th>
+                    <span className="parent-origin paternal" aria-hidden="true">
+                      ♂
+                    </span>
+                    Allele paterno
+                  </th>
                   <th>Espressione</th>
-                  <th><span className="parent-origin maternal" aria-hidden="true">♀</span>Allele materno</th>
-                  <th><span className="parent-origin paternal" aria-hidden="true">♂</span>Allele paterno</th>
+                  <th>
+                    <span className="parent-origin maternal" aria-hidden="true">
+                      ♀
+                    </span>
+                    Allele materno
+                  </th>
+                  <th>
+                    <span className="parent-origin paternal" aria-hidden="true">
+                      ♂
+                    </span>
+                    Allele paterno
+                  </th>
                   <th>Espressione</th>
                 </tr>
               </thead>
@@ -1281,7 +1535,9 @@ export default function App() {
               const descriptor = locusDescriptor(index);
               return (
                 <span key={descriptor.label}>
-                  <b>{descriptor.label} = {value}</b>
+                  <b>
+                    {descriptor.label} = {value}
+                  </b>
                   {descriptor.fullLabel}
                 </span>
               );
@@ -1291,50 +1547,83 @@ export default function App() {
       )}
 
       {tab === "TTE-T4" && (
-        <Card title="Tom Thumb Engine T4" subtitle="Esecuzione reale, passo per passo, degli otto tick.">
+        <Card
+          title="Tom Thumb Engine T4"
+          subtitle="Esecuzione reale, passo per passo, degli otto tick."
+        >
           <SectionExplanation
             badge="XOR"
             title="Perché il motore confronta due loci?"
             natural="Le cellule reali usano reti regolative nelle quali geni e proteine si attivano o si reprimono reciprocamente. La XOR non è una reazione naturale specifica, ma rappresenta questa dipendenza fra segnali."
           >
-            A ogni tick il locus corrente viene confrontato con un partner distante due posizioni. Due valori diversi producono 1; due valori uguali producono 0. Il risultato non modifica il genoma: viene scritto nella memoria.
+            A ogni tick il locus corrente viene confrontato con un partner
+            distante due posizioni. Due valori diversi producono 1; due valori
+            uguali producono 0. Il risultato non modifica il genoma: viene
+            scritto nella memoria.
           </SectionExplanation>
 
           <p className="formula">writeₜ = Lₜ XOR L₍ₜ₊₂ mod 8₎</p>
 
-          <section className={`tte-step ${selectedT4IsPending ? "pending" : "complete"}`}>
+          <section
+            className={`tte-step ${selectedT4IsPending ? "pending" : "complete"}`}
+          >
             <div className="tte-step-heading">
               <div>
-                <p>{selectedT4IsPending ? "Operazione da eseguire" : "Ultima operazione eseguita"}</p>
+                <p>
+                  {selectedT4IsPending
+                    ? "Operazione da eseguire"
+                    : "Ultima operazione eseguita"}
+                </p>
                 <h3>Tick {selectedT4Event.tick}</h3>
               </div>
-              <span>{selectedT4IsPending ? `Avanzamento ${tick}/8` : "Sviluppo 8/8 completato"}</span>
+              <span>
+                {selectedT4IsPending
+                  ? `Avanzamento ${tick}/8`
+                  : "Sviluppo 8/8 completato"}
+              </span>
             </div>
 
-            <div className="tte-calculation-flow" aria-label={`Calcolo del tick ${selectedT4Event.tick}`}>
+            <div
+              className="tte-calculation-flow"
+              aria-label={`Calcolo del tick ${selectedT4Event.tick}`}
+            >
               <article>
                 <small>Locus corrente</small>
                 <b>{locusDescriptor(selectedT4Event.locusIndex).label}</b>
                 <strong>{selectedT4Event.locusValue}</strong>
-                <span>{locusDescriptor(selectedT4Event.locusIndex).fullLabel}</span>
+                <span>
+                  {locusDescriptor(selectedT4Event.locusIndex).fullLabel}
+                </span>
               </article>
 
-              <div className="tte-operator" aria-hidden="true">XOR</div>
+              <div className="tte-operator" aria-hidden="true">
+                XOR
+              </div>
 
               <article>
                 <small>Locus partner</small>
                 <b>{locusDescriptor(selectedT4Event.partnerIndex).label}</b>
                 <strong>{selectedT4Event.partnerValue}</strong>
-                <span>{locusDescriptor(selectedT4Event.partnerIndex).fullLabel}</span>
+                <span>
+                  {locusDescriptor(selectedT4Event.partnerIndex).fullLabel}
+                </span>
               </article>
 
-              <div className="tte-operator" aria-hidden="true">=</div>
+              <div className="tte-operator" aria-hidden="true">
+                =
+              </div>
 
               <article className="tte-result">
                 <small>Valore scritto</small>
-                <b>{selectedT4Event.locusValue} XOR {selectedT4Event.partnerValue}</b>
+                <b>
+                  {selectedT4Event.locusValue} XOR{" "}
+                  {selectedT4Event.partnerValue}
+                </b>
                 <strong>{selectedT4Event.writeValue}</strong>
-                <span>Memoria[{selectedT4Event.address.row}][{selectedT4Event.address.col}]</span>
+                <span>
+                  Memoria[{selectedT4Event.address.row}][
+                  {selectedT4Event.address.col}]
+                </span>
               </article>
             </div>
 
@@ -1344,16 +1633,25 @@ export default function App() {
                 <Matrix matrix={selectedT4Event.memoryBefore} />
               </div>
 
-              <div className="tte-write-arrow" aria-label="Scrittura nella memoria">
+              <div
+                className="tte-write-arrow"
+                aria-label="Scrittura nella memoria"
+              >
                 <span>scrive</span>
                 <b>{selectedT4Event.writeValue}</b>
-                <small>riga {selectedT4Event.address.row}, colonna {selectedT4Event.address.col}</small>
+                <small>
+                  riga {selectedT4Event.address.row}, colonna{" "}
+                  {selectedT4Event.address.col}
+                </small>
                 <i aria-hidden="true">→</i>
               </div>
 
               <div>
                 <h4>Memoria dopo il tick {selectedT4Event.tick}</h4>
-                <Matrix matrix={selectedT4Event.memoryAfter} highlight={selectedT4Event.address} />
+                <Matrix
+                  matrix={selectedT4Event.memoryAfter}
+                  highlight={selectedT4Event.address}
+                />
               </div>
             </div>
 
@@ -1364,7 +1662,9 @@ export default function App() {
             </p>
           </section>
 
-          <h3 className="tte-history-title">Sequenza completa degli otto tick</h3>
+          <h3 className="tte-history-title">
+            Sequenza completa degli otto tick
+          </h3>
           <div className="table-wrap">
             <table className="tte-history-table">
               <thead>
@@ -1380,24 +1680,47 @@ export default function App() {
               </thead>
               <tbody>
                 {complete.history.map((event) => {
-                  const state = event.tick < tick ? "done" : event.tick === selectedT4Event.tick ? "current" : "future";
+                  const state =
+                    event.tick < tick
+                      ? "done"
+                      : event.tick === selectedT4Event.tick
+                        ? "current"
+                        : "future";
                   return (
                     <tr className={`tte-event-${state}`} key={event.tick}>
                       <td>{event.tick}</td>
                       <td>
-                        {locusDescriptor(event.locusIndex).label}={event.locusValue}
-                        <small>{locusDescriptor(event.locusIndex).fullLabel}</small>
+                        {locusDescriptor(event.locusIndex).label}=
+                        {event.locusValue}
+                        <small>
+                          {locusDescriptor(event.locusIndex).fullLabel}
+                        </small>
                       </td>
                       <td>
-                        {locusDescriptor(event.partnerIndex).label}={event.partnerValue}
-                        <small>{locusDescriptor(event.partnerIndex).fullLabel}</small>
+                        {locusDescriptor(event.partnerIndex).label}=
+                        {event.partnerValue}
+                        <small>
+                          {locusDescriptor(event.partnerIndex).fullLabel}
+                        </small>
                       </td>
-                      <td>{event.locusValue} XOR {event.partnerValue}</td>
-                      <td><b>{event.writeValue}</b></td>
-                      <td>({event.address.row},{event.address.col})</td>
+                      <td>
+                        {event.locusValue} XOR {event.partnerValue}
+                      </td>
+                      <td>
+                        <b>{event.writeValue}</b>
+                      </td>
+                      <td>
+                        ({event.address.row},{event.address.col})
+                      </td>
                       <td>
                         <span className={`tte-state-badge ${state}`}>
-                          {state === "done" ? "Eseguito" : state === "current" ? (selectedT4IsPending ? "Corrente" : "Ultimo") : "Futuro"}
+                          {state === "done"
+                            ? "Eseguito"
+                            : state === "current"
+                              ? selectedT4IsPending
+                                ? "Corrente"
+                                : "Ultimo"
+                              : "Futuro"}
                         </span>
                       </td>
                     </tr>
@@ -1416,7 +1739,9 @@ export default function App() {
             title="Perché la cellula possiede una memoria?"
             natural="Nelle cellule naturali lo stato presente dipende da RNA, proteine, concentrazioni molecolari e modificazioni epigenetiche accumulate nel tempo. Cellule con lo stesso DNA possono quindi comportarsi diversamente."
           >
-            La memoria 4×4 conserva gli esiti prodotti dai tick. È separata dal genoma: il DNA resta stabile, mentre lo stato interno si costruisce progressivamente e viene poi letto come MessageData.
+            La memoria 4×4 conserva gli esiti prodotti dai tick. È separata dal
+            genoma: il DNA resta stabile, mentre lo stato interno si costruisce
+            progressivamente e viene poi letto come MessageData.
           </SectionExplanation>
 
           <div className="memory-layout">
@@ -1430,7 +1755,11 @@ export default function App() {
                   <span className="memory-step-number">1</span>
                   <div>
                     <h3>Il motore confronta due loci</h3>
-                    <p>Al tick corrente viene letto un locus e il partner distante due posizioni. La XOR produce il bit da memorizzare.</p>
+                    <p>
+                      Al tick corrente viene letto un locus e il partner
+                      distante due posizioni. La XOR produce il bit da
+                      memorizzare.
+                    </p>
                   </div>
                 </div>
 
@@ -1438,7 +1767,11 @@ export default function App() {
                   <span className="memory-step-number">2</span>
                   <div>
                     <h3>Il tick determina l’indirizzo</h3>
-                    <p><code>riga = tick mod 4</code> e <code>colonna = floor(tick / 4)</code>. I tick 0–3 riempiono la prima colonna; i tick 4–7 la seconda.</p>
+                    <p>
+                      <code>riga = tick mod 4</code> e{" "}
+                      <code>colonna = floor(tick / 4)</code>. I tick 0–3
+                      riempiono la prima colonna; i tick 4–7 la seconda.
+                    </p>
                   </div>
                 </div>
 
@@ -1446,7 +1779,11 @@ export default function App() {
                   <span className="memory-step-number">3</span>
                   <div>
                     <h3>Il risultato viene conservato</h3>
-                    <p>La cella evidenziata è l’ultima posizione scritta. Le altre celle già compilate conservano i risultati dei tick precedenti.</p>
+                    <p>
+                      La cella evidenziata è l’ultima posizione scritta. Le
+                      altre celle già compilate conservano i risultati dei tick
+                      precedenti.
+                    </p>
                   </div>
                 </div>
 
@@ -1454,29 +1791,44 @@ export default function App() {
                   <span className="memory-step-number">4</span>
                   <div>
                     <h3>La memoria diventa MessageData</h3>
-                    <p>I primi otto slot utili vengono letti in ordine e formano il messaggio interno usato per costruire il codice PF8.</p>
+                    <p>
+                      I primi otto slot utili vengono letti in ordine e formano
+                      il messaggio interno usato per costruire il codice PF8.
+                    </p>
                   </div>
                 </div>
               </div>
 
-              {cell.history.length > 0 ? (() => {
-                const event = cell.history.at(-1);
-                const source = locusDescriptor(event.locusIndex);
-                const partner = locusDescriptor(event.partnerIndex);
+              {cell.history.length > 0 ? (
+                (() => {
+                  const event = cell.history.at(-1);
+                  const source = locusDescriptor(event.locusIndex);
+                  const partner = locusDescriptor(event.partnerIndex);
 
-                return (
-                  <div className="memory-current-write">
-                    <span className="memory-current-label">Ultima scrittura eseguita</span>
-                    <p>
-                      Tick <b>{event.tick}</b>: {source.label} = {event.locusValue} XOR {partner.label} = {event.partnerValue}
-                      {" "}→ <strong>{event.writeValue}</strong> in M[{event.address.row},{event.address.col}]
-                    </p>
-                  </div>
-                );
-              })() : (
+                  return (
+                    <div className="memory-current-write">
+                      <span className="memory-current-label">
+                        Ultima scrittura eseguita
+                      </span>
+                      <p>
+                        Tick <b>{event.tick}</b>: {source.label} ={" "}
+                        {event.locusValue} XOR {partner.label} ={" "}
+                        {event.partnerValue} →{" "}
+                        <strong>{event.writeValue}</strong> in M[
+                        {event.address.row},{event.address.col}]
+                      </p>
+                    </div>
+                  );
+                })()
+              ) : (
                 <div className="memory-current-write memory-current-write--empty">
-                  <span className="memory-current-label">Nessuna scrittura</span>
-                  <p>Il tick è 0: la memoria è ancora vuota. Premi <b>+ Tick</b> per eseguire la prima operazione.</p>
+                  <span className="memory-current-label">
+                    Nessuna scrittura
+                  </span>
+                  <p>
+                    Il tick è 0: la memoria è ancora vuota. Premi <b>+ Tick</b>{" "}
+                    per eseguire la prima operazione.
+                  </p>
                 </div>
               )}
 
@@ -1488,9 +1840,18 @@ export default function App() {
                   showCoordinates
                 />
                 <p className="memory-legend">
-                  <span><i className="memory-legend-swatch memory-legend-swatch--on" /> bit attivo (1)</span>
-                  <span><i className="memory-legend-swatch memory-legend-swatch--off" /> bit inattivo (0)</span>
-                  <span><i className="memory-legend-swatch memory-legend-swatch--last" /> ultima cella scritta</span>
+                  <span>
+                    <i className="memory-legend-swatch memory-legend-swatch--on" />{" "}
+                    bit attivo (1)
+                  </span>
+                  <span>
+                    <i className="memory-legend-swatch memory-legend-swatch--off" />{" "}
+                    bit inattivo (0)
+                  </span>
+                  <span>
+                    <i className="memory-legend-swatch memory-legend-swatch--last" />{" "}
+                    ultima cella scritta
+                  </span>
                 </p>
               </div>
             </Card>
@@ -1502,9 +1863,19 @@ export default function App() {
             >
               <div className="memory-summary-grid">
                 <Metric label="Avanzamento" value={`${tick}/8 tick`} />
-                <Metric label="Scritture eseguite" value={cell.history.length} />
+                <Metric
+                  label="Scritture eseguite"
+                  value={cell.history.length}
+                />
                 <Metric label="Bit attivi" value={cell.inspection.memoryMass} />
-                <Metric label="Ultimo indirizzo" value={cell.history.length ? `M[${cell.history.at(-1).address.row},${cell.history.at(-1).address.col}]` : "—"} />
+                <Metric
+                  label="Ultimo indirizzo"
+                  value={
+                    cell.history.length
+                      ? `M[${cell.history.at(-1).address.row},${cell.history.at(-1).address.col}]`
+                      : "—"
+                  }
+                />
               </div>
 
               <div className="memory-message-summary">
@@ -1513,7 +1884,10 @@ export default function App() {
                 <code>{cell.messageData.join("")}</code>
               </div>
 
-              <div className="memory-progress-track" aria-label={`Sviluppo memoria ${tick} su 8 tick`}>
+              <div
+                className="memory-progress-track"
+                aria-label={`Sviluppo memoria ${tick} su 8 tick`}
+              >
                 <span style={{ width: `${(tick / 8) * 100}%` }} />
               </div>
 
@@ -1521,16 +1895,26 @@ export default function App() {
                 <h3>Ultime operazioni</h3>
                 {cell.history.length ? (
                   <ul>
-                    {cell.history.slice(-3).reverse().map((event) => (
-                      <li key={event.tick}>
-                        <b>T{event.tick}</b>
-                        <span>{event.locusValue} XOR {event.partnerValue} = {event.writeValue}</span>
-                        <code>M[{event.address.row},{event.address.col}]</code>
-                      </li>
-                    ))}
+                    {cell.history
+                      .slice(-3)
+                      .reverse()
+                      .map((event) => (
+                        <li key={event.tick}>
+                          <b>T{event.tick}</b>
+                          <span>
+                            {event.locusValue} XOR {event.partnerValue} ={" "}
+                            {event.writeValue}
+                          </span>
+                          <code>
+                            M[{event.address.row},{event.address.col}]
+                          </code>
+                        </li>
+                      ))}
                   </ul>
                 ) : (
-                  <p className="memory-empty-state">Nessuna operazione eseguita.</p>
+                  <p className="memory-empty-state">
+                    Nessuna operazione eseguita.
+                  </p>
                 )}
               </div>
             </Card>
@@ -1545,25 +1929,33 @@ export default function App() {
             title="Come nasce la posizione nella matrice?"
             natural="In biologia molti stati molecolari differenti possono convergere verso un numero limitato di identità cellulari. PF8 rappresenta questa convergenza come uno spazio discreto di sessantaquattro esiti."
           >
-            I primi sei bit di MessageData formano il codice PF8. I primi tre indicano la riga e gli ultimi tre la colonna. La cella evidenziata identifica il fenotipo corrente e il suo peso nello spazio genomico.
+            I primi sei bit di MessageData formano il codice PF8. I primi tre
+            indicano la riga e gli ultimi tre la colonna. La cella evidenziata
+            identifica il fenotipo corrente e il suo peso nello spazio genomico.
           </SectionExplanation>
           <div className="dashboard">
-          <Card title="Codifica PF8">
-            <p className="bigcode">
-              {complete.pf8.rowBits} | {complete.pf8.colBits}
-            </p>
-            <div className="metrics">
-              <Metric label="Codice" value={complete.code} />
-              <Metric label="Riga" value={complete.pf8.row} />
-              <Metric label="Colonna" value={complete.pf8.col} />
-              <Metric label="Genomi associati" value={fmt.format(profile.count)} />
-              <Metric label="Probabilità" value={pct.format(profile.probability)} />
-              <Metric label="Rango" value={`${profile.rank}/64`} />
-            </div>
-          </Card>
-          <Card title="Matrice PF8 completa" className="wide">
-            <PF8Grid counts={db.pf8.counts} active={complete.pf8} />
-          </Card>
+            <Card title="Codifica PF8">
+              <p className="bigcode">
+                {complete.pf8.rowBits} | {complete.pf8.colBits}
+              </p>
+              <div className="metrics">
+                <Metric label="Codice" value={complete.code} />
+                <Metric label="Riga" value={complete.pf8.row} />
+                <Metric label="Colonna" value={complete.pf8.col} />
+                <Metric
+                  label="Genomi associati"
+                  value={fmt.format(profile.count)}
+                />
+                <Metric
+                  label="Probabilità"
+                  value={pct.format(profile.probability)}
+                />
+                <Metric label="Rango" value={`${profile.rank}/64`} />
+              </div>
+            </Card>
+            <Card title="Matrice PF8 completa" className="wide">
+              <PF8Grid counts={db.pf8.counts} active={complete.pf8} />
+            </Card>
           </div>
         </>
       )}
@@ -1575,55 +1967,64 @@ export default function App() {
             title="Che cosa rappresenta il fenotipo?"
             natural="Il fenotipo reale nasce dall’interazione fra genotipo, sviluppo e ambiente. Anche individui geneticamente simili possono manifestare differenze per effetto della regolazione e delle condizioni di vita."
           >
-            Il codice PF8 viene decodificato in sei caratteri binari e mostrato mediante l’avatar. L’immagine è una rappresentazione simbolica del risultato finale, non una ricostruzione anatomica o genetica completa.
+            Il codice PF8 viene decodificato in sei caratteri binari e mostrato
+            mediante l’avatar. L’immagine è una rappresentazione simbolica del
+            risultato finale, non una ricostruzione anatomica o genetica
+            completa.
           </SectionExplanation>
-          <section className="phenotype-laboratory" aria-label="Laboratorio del fenotipo">
-          <PhenotypeAvatar phenotype={phenotype} code={complete.code} />
-
-          <Card
-            title="Phenotype Laboratory"
-            subtitle="Il codice PF8 corrente viene tradotto in sei caratteri osservabili."
-            className="phenotype-details-card"
+          <section
+            className="phenotype-laboratory"
+            aria-label="Laboratorio del fenotipo"
           >
-            <div className="phenotype-intro">
-              <p>
-                L’avatar mostra il risultato completo dello sviluppo T4. Colore della
-                pelle, forma dei capelli, colore degli occhi e presenza degli occhiali
-                cambiano direttamente con i bit del fenotipo.
-              </p>
-              <div className="phenotype-code-strip">
-                <span>Codice corrente</span>
-                <b>{complete.code}</b>
-                <small>PF8 ({complete.pf8.row}, {complete.pf8.col})</small>
-              </div>
-            </div>
+            <PhenotypeAvatar phenotype={phenotype} code={complete.code} />
 
-            <div className="phenotype">
-              {phenotype.map((trait) => (
-                <article key={trait.axis}>
-                  <div
-                    className={`trait-icon ${
-                      trait.axis === "sesso"
-                        ? `sex-origin ${trait.key === "femmina" ? "maternal" : "paternal"}`
-                        : ""
-                    }`}
-                    aria-hidden="true"
-                  >
-                    {trait.icon}
-                  </div>
-                  <div className="trait-copy">
-                    <span>{trait.axis}</span>
-                    <b>{trait.label}</b>
-                    <small>
-                      bit {trait.bit}
-                      {trait.culturalModel ? ` · ${trait.culturalModel}` : ""}
-                      {trait.description ? ` · ${trait.description}` : ""}
-                    </small>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </Card>
+            <Card
+              title="Phenotype Laboratory"
+              subtitle="Il codice PF8 corrente viene tradotto in sei caratteri osservabili."
+              className="phenotype-details-card"
+            >
+              <div className="phenotype-intro">
+                <p>
+                  L’avatar mostra il risultato completo dello sviluppo T4.
+                  Colore della pelle, forma dei capelli, colore degli occhi e
+                  presenza degli occhiali cambiano direttamente con i bit del
+                  fenotipo.
+                </p>
+                <div className="phenotype-code-strip">
+                  <span>Codice corrente</span>
+                  <b>{complete.code}</b>
+                  <small>
+                    PF8 ({complete.pf8.row}, {complete.pf8.col})
+                  </small>
+                </div>
+              </div>
+
+              <div className="phenotype">
+                {phenotype.map((trait) => (
+                  <article key={trait.axis}>
+                    <div
+                      className={`trait-icon ${
+                        trait.axis === "sesso"
+                          ? `sex-origin ${trait.key === "femmina" ? "maternal" : "paternal"}`
+                          : ""
+                      }`}
+                      aria-hidden="true"
+                    >
+                      {trait.icon}
+                    </div>
+                    <div className="trait-copy">
+                      <span>{trait.axis}</span>
+                      <b>{trait.label}</b>
+                      <small>
+                        bit {trait.bit}
+                        {trait.culturalModel ? ` · ${trait.culturalModel}` : ""}
+                        {trait.description ? ` · ${trait.description}` : ""}
+                      </small>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </Card>
           </section>
         </>
       )}
@@ -1635,7 +2036,9 @@ export default function App() {
             title="Che cosa significa ispezionare la cellula?"
             natural="Una cellula reale mantiene l’omeostasi controllando energia, pH, ioni e integrità delle strutture. Qui il controllo è più semplice: verifica che lo sviluppo sia terminato e che il risultato sia coerente e leggibile."
           >
-            L’ispezione riassume completezza, stabilità, quantità di bit attivi e disponibilità del fenotipo. Non cambia la cellula: osserva e diagnostica lo stato prodotto fino al tick corrente.
+            L’ispezione riassume completezza, stabilità, quantità di bit attivi
+            e disponibilità del fenotipo. Non cambia la cellula: osserva e
+            diagnostica lo stato prodotto fino al tick corrente.
           </SectionExplanation>
           <div className="metrics">
             <Metric label="Stato" value={cell.inspection.status} />
@@ -1646,8 +2049,14 @@ export default function App() {
               value={String(cell.inspection.phenotypeReady)}
             />
             <Metric label="Massa memoria" value={cell.inspection.memoryMass} />
-            <Metric label="Celle occupate" value={cell.inspection.occupiedCells} />
-            <Metric label="Massa messaggio" value={cell.inspection.messageMass} />
+            <Metric
+              label="Celle occupate"
+              value={cell.inspection.occupiedCells}
+            />
+            <Metric
+              label="Massa messaggio"
+              value={cell.inspection.messageMass}
+            />
             <Metric
               label="Note"
               value={cell.inspection.notes.join(", ") || "nessuna"}
@@ -1655,10 +2064,16 @@ export default function App() {
           </div>
           <p className="cross-tab-link">
             Questa è un'istantanea della cellula in un istante fisso. Il tab{" "}
-            <button type="button" className="link-button" onClick={() => setTab("Replicazione")}>
+            <button
+              type="button"
+              className="link-button"
+              onClick={() => setTab("Replicazione")}
+            >
               Replicazione
             </button>{" "}
-            mostra la stessa diagnosi ripetuta su più generazioni consecutive — cosa succede quando questo stato diventa il punto di partenza della cellula successiva.
+            mostra la stessa diagnosi ripetuta su più generazioni consecutive —
+            cosa succede quando questo stato diventa il punto di partenza della
+            cellula successiva.
           </p>
         </Card>
       )}
@@ -1670,43 +2085,69 @@ export default function App() {
             title="Perché alcuni fenotipi sono più frequenti?"
             natural="Anche in natura le combinazioni genetiche e fenotipiche non sono distribuite uniformemente. Vincoli ereditari, sviluppo e selezione rendono alcuni esiti più comuni, robusti o accessibili di altri."
           >
-            Il database conta quanti genomi conducono a ciascuna cella PF8. Frequenza, rango, entropia e deviazione standard descrivono la geometria complessiva del modello, non la frequenza reale dei caratteri umani.
+            Il database conta quanti genomi conducono a ciascuna cella PF8.
+            Frequenza, rango, entropia e deviazione standard descrivono la
+            geometria complessiva del modello, non la frequenza reale dei
+            caratteri umani.
           </SectionExplanation>
           <div className="dashboard">
-          <Card title="Database PF8">
-            <div className="metrics">
-              <Metric label="Spazio genomico" value={fmt.format(db.genomeSpace.valid)} />
-              <Metric label="Entropia" value={db.statistics.entropy.toFixed(4)} />
-              <Metric
-                label="Media per cella"
-                value={fmt.format(Math.round(db.statistics.mean))}
-              />
-              <Metric
-                label="Deviazione standard"
-                value={fmt.format(Math.round(db.statistics.standardDeviation))}
-              />
-              <Metric
-                label="Massimo"
-                value={`${db.statistics.max.code}: ${fmt.format(db.statistics.max.count)}`}
-              />
-              <Metric
-                label="Minimo"
-                value={`${db.statistics.min.code}: ${fmt.format(db.statistics.min.count)}`}
-              />
-            </div>
-          </Card>
-          <Card title="Profilo del fenotipo corrente">
-            <div className="metrics">
-              <Metric label="Codice" value={complete.code} />
-              <Metric label="Conteggio" value={fmt.format(profile.count)} />
-              <Metric label="Quota" value={pct.format(profile.probability)} />
-              <Metric label="Rango" value={profile.rank} />
-              <Metric label="Z-score" value={profile.zScore.toFixed(3)} />
-            </div>
-          </Card>
-          <Card title="Heatmap PF8" className="wide">
-            <PF8Grid counts={db.pf8.counts} active={complete.pf8} />
-          </Card>
+            <Card title="Database PF8">
+              <div className="metrics">
+                <Metric
+                  label="Spazio genomico"
+                  value={fmt.format(db.genomeSpace.valid)}
+                />
+                <Metric
+                  label="Entropia"
+                  value={db.statistics.entropy.toFixed(4)}
+                />
+                <Metric
+                  label="Media per cella"
+                  value={fmt.format(Math.round(db.statistics.mean))}
+                />
+                <Metric
+                  label="Deviazione standard"
+                  value={fmt.format(
+                    Math.round(db.statistics.standardDeviation),
+                  )}
+                />
+                <Metric
+                  label="Massimo"
+                  value={`${db.statistics.max.code}: ${fmt.format(db.statistics.max.count)}`}
+                />
+                <Metric
+                  label="Minimo"
+                  value={`${db.statistics.min.code}: ${fmt.format(db.statistics.min.count)}`}
+                />
+              </div>
+            </Card>
+            <Card title="Profilo del fenotipo corrente">
+              <div className="metrics">
+                <Metric label="Codice" value={complete.code} />
+                <Metric label="Conteggio" value={fmt.format(profile.count)} />
+                <Metric label="Quota" value={pct.format(profile.probability)} />
+                <Metric label="Rango" value={profile.rank} />
+                <Metric label="Z-score" value={profile.zScore.toFixed(3)} />
+              </div>
+              <div
+                className="phenotype-icon-strip"
+                aria-label="Le sei caratteristiche del fenotipo corrente"
+              >
+                {phenotype.map((trait) => (
+                  <span
+                    key={trait.axis}
+                    className="phenotype-icon-chip"
+                    title={trait.label}
+                  >
+                    <span aria-hidden="true">{trait.icon}</span>
+                    {trait.label}
+                  </span>
+                ))}
+              </div>
+            </Card>
+            <Card title="Heatmap PF8" className="wide">
+              <PF8Grid counts={db.pf8.counts} active={complete.pf8} />
+            </Card>
           </div>
         </>
       )}
@@ -1718,7 +2159,12 @@ export default function App() {
             title="Che cos'è la replicazione per auto-ispezione?"
             natural="Nel Tom Thumb Algorithm applicato all'Universal Constructor di von Neumann, l'organismo non ripete un genoma fisso a ogni replicazione: copia il proprio stato attuale, mutazioni comprese. Qui la stessa idea è applicata al motore TTE-T4."
           >
-            Il MessageData calcolato da una generazione diventa, tramite ricodifica omozigote, il genoma della generazione successiva. Senza mutazioni la linea collassa sempre a zero entro la generazione 3. Con mutazione ogni N generazioni: N≤3 mantiene la linea sempre viva, N≥4 introduce esattamente N−3 generazioni di silenzio per ciclo prima della resurrezione.
+            Il MessageData calcolato da una generazione diventa, tramite
+            ricodifica omozigote, il genoma della generazione successiva. Senza
+            mutazioni la linea collassa sempre a zero entro la generazione 3.
+            Con mutazione ogni N generazioni: N≤3 mantiene la linea sempre viva,
+            N≥4 introduce esattamente N−3 generazioni di silenzio per ciclo
+            prima della resurrezione.
           </SectionExplanation>
 
           <button
@@ -1726,14 +2172,22 @@ export default function App() {
             className="storyboard-cta"
             onClick={() => setStoryboardOpen(true)}
           >
-            <span className="storyboard-cta-icon" aria-hidden="true">📖</span>
+            <span className="storyboard-cta-icon" aria-hidden="true">
+              📖
+            </span>
             <span className="storyboard-cta-copy">
               <b>Racconta la storia</b>
-              <small>Nascita, senescenza, rinascita — 7 pannelli con l'analogia del limite di Hayflick</small>
+              <small>
+                Nascita, senescenza, rinascita — 7 pannelli con l'analogia del
+                limite di Hayflick
+              </small>
             </span>
           </button>
 
-          <section className="toolbar" aria-label="Controlli della replicazione">
+          <section
+            className="toolbar"
+            aria-label="Controlli della replicazione"
+          >
             <div className="toolbar-actions">
               <label>
                 <span>Generazioni</span>
@@ -1743,7 +2197,12 @@ export default function App() {
                   max="40"
                   value={lineageLength}
                   onChange={(event) =>
-                    setLineageLength(Math.max(1, Math.min(40, Number(event.target.value) || 1)))
+                    setLineageLength(
+                      Math.max(
+                        1,
+                        Math.min(40, Number(event.target.value) || 1),
+                      ),
+                    )
                   }
                 />
               </label>
@@ -1754,23 +2213,30 @@ export default function App() {
                   min="0"
                   max="10"
                   value={mutateEvery}
-                  onChange={(event) => setMutateEvery(Math.max(0, Number(event.target.value) || 0))}
+                  onChange={(event) =>
+                    setMutateEvery(Math.max(0, Number(event.target.value) || 0))
+                  }
                 />
               </label>
               <p className="mutation-preview">
                 {mutateEvery === 0
                   ? "Nessuna mutazione: la linea collassa a zero entro la generazione 3 e non si riprende più."
                   : expectedSilentWindow(mutateEvery) === 0
-                  ? `Con N=${mutateEvery}, la linea non muore mai (0 generazioni silenti per ciclo).`
-                  : `Con N=${mutateEvery}, attese ${expectedSilentWindow(mutateEvery)} generazion${expectedSilentWindow(mutateEvery) === 1 ? "e" : "i"} silenzios${expectedSilentWindow(mutateEvery) === 1 ? "a" : "e"} per ciclo prima della resurrezione.`}
+                    ? `Con N=${mutateEvery}, la linea non muore mai (0 generazioni silenti per ciclo).`
+                    : `Con N=${mutateEvery}, attese ${expectedSilentWindow(mutateEvery)} generazion${expectedSilentWindow(mutateEvery) === 1 ? "e" : "i"} silenzios${expectedSilentWindow(mutateEvery) === 1 ? "a" : "e"} per ciclo prima della resurrezione.`}
               </p>
-              <button type="button" onClick={() => setLineageSeed((s) => s + 1)}>
+              <button
+                type="button"
+                onClick={() => setLineageSeed((s) => s + 1)}
+              >
                 Rigenera (nuova mutazione casuale)
               </button>
             </div>
           </section>
 
-          {storyboardOpen ? <StoryboardOverlay onClose={() => setStoryboardOpen(false)} /> : null}
+          {storyboardOpen ? (
+            <StoryboardOverlay onClose={() => setStoryboardOpen(false)} />
+          ) : null}
 
           <div className="dashboard">
             <Card title="Linea di generazioni" className="wide">
@@ -1789,7 +2255,9 @@ export default function App() {
                     min="0"
                     max={lineage.length - 1}
                     value={selectedGen}
-                    onChange={(event) => setSelectedGen(Number(event.target.value))}
+                    onChange={(event) =>
+                      setSelectedGen(Number(event.target.value))
+                    }
                   />
                   <b>
                     {selectedGen} / {lineage.length - 1}
@@ -1797,14 +2265,24 @@ export default function App() {
                 </label>
                 <button
                   type="button"
-                  onClick={() => setSelectedGen((g) => Math.min(lineage.length - 1, g + 1))}
+                  onClick={() =>
+                    setSelectedGen((g) => Math.min(lineage.length - 1, g + 1))
+                  }
                   aria-label="Generazione successiva"
                 >
                   + Gen
                 </button>
               </div>
 
-              <div className="matrix-shell" style={{ display: "flex", gap: "4px", flexWrap: "wrap", marginTop: "0.75rem" }}>
+              <div
+                className="matrix-shell"
+                style={{
+                  display: "flex",
+                  gap: "4px",
+                  flexWrap: "wrap",
+                  marginTop: "0.75rem",
+                }}
+              >
                 {lineage.map((g, index) => (
                   <button
                     type="button"
@@ -1833,16 +2311,27 @@ export default function App() {
                   : "Nessuna mutazione in questa generazione"
               }
             >
-              <p>MessageData (evidenziati i bit cambiati rispetto al genitore):</p>
-              <DiffBits values={selectedGeneration.cell.messageData} diffFlags={selectedDiff} />
+              <p>
+                MessageData (evidenziati i bit cambiati rispetto al genitore):
+              </p>
+              <DiffBits
+                values={selectedGeneration.cell.messageData}
+                diffFlags={selectedDiff}
+              />
               <div className="metrics">
-                <Metric label="Codice PF8" value={selectedGeneration.cell.code} />
-                <Metric label="Stato" value={selectedGeneration.isZeroState ? "Silente (zero)" : "Attivo"} />
+                <Metric
+                  label="Codice PF8"
+                  value={selectedGeneration.cell.code}
+                />
+                <Metric
+                  label="Stato"
+                  value={
+                    selectedGeneration.isZeroState ? "Silente (zero)" : "Attivo"
+                  }
+                />
                 <Metric
                   label="Generazioni al silenzio"
-                  value={
-                    generationsUntilSilenceDisplay(lineage, selectedGen)
-                  }
+                  value={generationsUntilSilenceDisplay(lineage, selectedGen)}
                 />
               </div>
             </Card>
@@ -1871,12 +2360,14 @@ export default function App() {
         </>
       )}
 
-      {helpOpen ? <HelpModal tab={tab} onClose={() => setHelpOpen(false)} /> : null}
+      {helpOpen ? (
+        <HelpModal tab={tab} onClose={() => setHelpOpen(false)} />
+      ) : null}
 
       <footer>
         Il motore implementa fedelmente la pipeline T4 fornita. Il dizionario
-        fenotipico PF8 è separato dal motore T4 e può essere esteso senza modificarne
-        le regole.
+        fenotipico PF8 è separato dal motore T4 e può essere esteso senza
+        modificarne le regole.
       </footer>
     </main>
   );

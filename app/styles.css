@@ -378,6 +378,28 @@ h1 {
   gap: 11px;
 }
 
+.phenotype-icon-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid #e5edec;
+}
+
+.phenotype-icon-chip {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  padding: 6px 10px;
+  border: 1px solid #d9e4e3;
+  border-radius: 999px;
+  color: #244f51;
+  background: #f4f9f8;
+  font-size: 0.78rem;
+  font-weight: 720;
+}
+
 .summary-metrics {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
