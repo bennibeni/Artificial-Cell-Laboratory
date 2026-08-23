@@ -26,11 +26,11 @@ const tabs = [
   "Mendel",
   "TTE-T4",
   "Memoria",
-  "Replicazione",
   "PF8",
   "Fenotipo",
   "Ispezione",
   "Statistiche",
+  "Replicazione",
 ];
 
 const fmt = new Intl.NumberFormat("it-IT");
@@ -201,10 +201,81 @@ const tabHelp = {
     paragraphs: [
       "A ogni generazione, il MessageData calcolato dalla cellula precedente diventa il genoma (omozigote) della cellula successiva: l'organismo copia il proprio stato attuale, non un genoma originale fisso. È lo stesso principio usato dal Tom Thumb Algorithm per la replicazione dell'Universal Constructor di von Neumann.",
       "Senza mutazioni la linea collassa sempre allo stato tutto-zero entro la generazione 3, mai oltre: verificato per esaustione su tutti i 65.536 genomi 4×4 possibili. Con una mutazione ogni N generazioni, vale una regola esatta: se N è 3 o meno la linea non muore mai; se N è 4 o più, la linea attraversa esattamente N−3 generazioni di silenzio a ogni ciclo prima di rinascere. È una conseguenza diretta del limite dei 3 passi, non un effetto separato.",
-      "Il pannello mostra, generazione per generazione, quali bit del MessageData sono cambiati rispetto al genitore e quante generazioni mancano al collasso a partire dalla cellula corrente.",
     ],
   },
 };
+
+// --- Tour guidato ---
+//
+// Non segue l'ordine dei tab nel menu (che mette Replicazione al 6°
+// posto): segue una progressione didattica a tre livelli — meccanismo
+// del singolo genoma (Genoma→Mendel→TTE-T4→Memoria→PF8→Fenotipo),
+// verifica (Ispezione), scala di popolazione (Statistiche), infine
+// dimensione temporale/evolutiva (Replicazione) come tappa conclusiva,
+// perché presuppone di aver già capito il ciclo a singola generazione
+// prima di seguirlo ripetuto nel tempo.
+const TOUR_STEPS = [
+  {
+    tab: "Simulatore",
+    title: "La panoramica",
+    description:
+      "Parti da qui per vedere l'intera pipeline in un colpo d'occhio: genoma, sviluppo tick-by-tick, memoria e risultato PF8 tutti insieme. Non serve capire ogni dettaglio subito: l'obiettivo è avere una mappa mentale del percorso completo prima di entrare nei singoli meccanismi.",
+  },
+  {
+    tab: "Genoma",
+    title: "Il punto di partenza",
+    description:
+      "Osserva la matrice 4×4: quattro regioni genetiche astratte, ciascuna con due loci (A e B), ciascun locus con un allele materno e uno paterno. Prova a modificare qualche allele: qui il genoma è ancora \"grezzo\", non tradotto in nulla.",
+  },
+  {
+    tab: "Mendel",
+    title: "Come si risolve un locus",
+    description:
+      "Per ogni locus, l'allele materno e quello paterno si combinano con un OR logico: 00→0, tutto il resto→1. È la regola che dà origine a ogni singolo bit successivo.",
+  },
+  {
+    tab: "TTE-T4",
+    title: "Il motore che \"legge\" il genoma",
+    description:
+      "Ogni tick confronta un locus con quello a due posizioni di distanza e calcola lo XOR tra i due, scrivendo il risultato in memoria. Il genoma non cambia mai: cambia solo cosa viene letto e quando.",
+  },
+  {
+    tab: "Memoria",
+    title: "Dove si accumula il risultato",
+    description:
+      "La matrice 4×4 di memoria registra progressivamente gli otto risultati prodotti dal motore T4. Segui come MessageData legge le celle in un ordine preciso.",
+  },
+  {
+    tab: "PF8",
+    title: "Dal messaggio al codice",
+    description:
+      "I primi sei bit di MessageData diventano il codice PF8: i primi tre indicano la riga, gli ultimi tre la colonna di una griglia 8×8. Qui vedi la cella che \"ospita\" il fenotipo che stai costruendo.",
+  },
+  {
+    tab: "Fenotipo",
+    title: "Il risultato leggibile",
+    description:
+      "I sei bit PF8 si traducono in sesso, pelle, capelli, occhi, tolleranza al lattosio e visione, con il ritratto a comporli visivamente. È il primo punto del tour in cui il modello \"si vede\".",
+  },
+  {
+    tab: "Ispezione",
+    title: "Un controllo di qualità",
+    description:
+      "Prima di allargare lo sguardo, verifica che lo sviluppo sia completo e il fenotipo stabile e leggibile: gli otto tick sono finiti e il messaggio non è vuoto.",
+  },
+  {
+    tab: "Statistiche",
+    title: "Dal singolo genoma alla popolazione",
+    description:
+      "Cambio di scala: da \"questo genoma produce questo fenotipo\" a come si distribuiscono 43.046.721 genomi possibili sulle 64 celle PF8. Gli esiti non sono equiprobabili.",
+  },
+  {
+    tab: "Replicazione",
+    title: "L'estensione nel tempo",
+    description:
+      "Ultima tappa, la più avanzata: il MessageData di una generazione diventa il genoma della successiva. Scopri il limite dei 3 passi al collasso e il ciclo nascita/silenzio/rinascita legato alla mutazione periodica.",
+  },
+];
 
 function Card({ title, subtitle, children, className = "" }) {
   return (
@@ -262,27 +333,77 @@ function Matrix({ matrix, editable = false, onToggle, highlight, showCoordinates
   );
 }
 
-function PF8Grid({ counts, active }) {
+function PF8Grid({ counts, active, trail }) {
   const max = Math.max(...counts.flat());
 
+  const trailByCell = new Map();
+  if (trail) {
+    trail.forEach((point) => {
+      const key = `${point.row}-${point.col}`;
+      if (!trailByCell.has(key)) trailByCell.set(key, []);
+      trailByCell.get(key).push(point);
+    });
+  }
+
   return (
-    <div className="pf8-grid">
-      {counts.flatMap((row, rowIndex) =>
-        row.map((count, columnIndex) => (
-          <div
-            key={`${rowIndex}-${columnIndex}`}
-            className={
-              active.row === rowIndex && active.col === columnIndex ? "selected" : ""
-            }
-            style={{ "--density": Math.max(0.08, count / max) }}
-          >
-            <b>
-              {rowIndex},{columnIndex}
-            </b>
-            <span>{fmt.format(count)}</span>
-          </div>
-        )),
-      )}
+    <div>
+      <div className="pf8-grid">
+        {counts.flatMap((row, rowIndex) =>
+          row.map((count, columnIndex) => {
+            const key = `${rowIndex}-${columnIndex}`;
+            const isActive = active.row === rowIndex && active.col === columnIndex;
+            const trailPoints = trailByCell.get(key) ?? [];
+            const trailLabel =
+              trailPoints.length > 3
+                ? `×${trailPoints.length}`
+                : trailPoints.map((point) => point.generation).join(",");
+            // Il bit "sesso" è il più significativo della riga (sesso, pelle, capelli):
+            // righe 0-3 = femmina, righe 4-7 = maschio. Separazione netta, nessuna riga mista.
+            const hue = rowIndex < 4 ? "220 38 38" : "37 99 235";
+
+            return (
+              <div
+                key={key}
+                className={[isActive ? "selected" : "", trailPoints.length ? "on-trail" : ""]
+                  .filter(Boolean)
+                  .join(" ")}
+                style={{
+                  "--density": (0.14 + 0.58 * Math.pow(count / max, 1.8)).toFixed(3),
+                  "--hue": hue,
+                }}
+              >
+                <b>
+                  {rowIndex},{columnIndex}
+                </b>
+                <span>{fmt.format(count)}</span>
+                {trailPoints.length ? (
+                  <span
+                    className="pf8-trail-badge"
+                    title={`Generazioni passate da qui: ${trailPoints
+                      .map((point) => point.generation)
+                      .join(", ")}`}
+                  >
+                    {trailLabel}
+                  </span>
+                ) : null}
+              </div>
+            );
+          }),
+        )}
+      </div>
+      <div className="pf8-grid-legend">
+        <span className="pf8-legend-item">
+          <span className="pf8-legend-swatch female" aria-hidden="true" />
+          Femmina (righe 0–3)
+        </span>
+        <span className="pf8-legend-item">
+          <span className="pf8-legend-swatch male" aria-hidden="true" />
+          Maschio (righe 4–7)
+        </span>
+        <span className="pf8-legend-item pf8-legend-note">
+          L'intensità del colore indica la frequenza nello spazio genomico.
+        </span>
+      </div>
     </div>
   );
 }
@@ -631,6 +752,52 @@ function HelpModal({ tab, onClose }) {
   );
 }
 
+function TourPanel({ stepIndex, onNext, onPrev, onClose }) {
+  const step = TOUR_STEPS[stepIndex];
+  const isFirst = stepIndex === 0;
+  const isLast = stepIndex === TOUR_STEPS.length - 1;
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
+  return (
+    <section className="tour-panel" role="dialog" aria-label="Tour guidato">
+      <div className="tour-panel-text">
+        <p className="tour-kicker">
+          Tour guidato · Passo {stepIndex + 1} di {TOUR_STEPS.length} · {step.title}
+        </p>
+        <p className="tour-panel-description">{step.description}</p>
+      </div>
+
+      <div className="tour-panel-controls">
+        <div className="tour-panel-progress" aria-hidden="true">
+          {TOUR_STEPS.map((tourStep, index) => (
+            <span key={tourStep.tab} className={index === stepIndex ? "active" : ""} />
+          ))}
+        </div>
+
+        <div className="tour-panel-buttons">
+          <button type="button" onClick={onPrev} disabled={isFirst}>
+            Indietro
+          </button>
+          <button type="button" className="primary" onClick={onNext}>
+            {isLast ? "Fine tour" : "Avanti"}
+          </button>
+          <button type="button" className="modal-close" onClick={onClose} aria-label="Chiudi il tour guidato">
+            ×
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+
 const MUTATION_EFFECTS = {
   neutral: { icon: "○", label: "Mutazione neutra" },
   loci: { icon: "🧬", label: "Effetto sui loci" },
@@ -671,6 +838,7 @@ export default function App() {
   const [tab, setTab] = useState("Simulatore");
   const [helpOpen, setHelpOpen] = useState(false);
   const [storyboardOpen, setStoryboardOpen] = useState(false);
+  const [tourStep, setTourStep] = useState(null); // null = tour chiuso; altrimenti indice 0..TOUR_STEPS.length-1
   const [lastMutation, setLastMutation] = useState(null);
 
   // --- Replicazione per auto-ispezione (TTE-T4 + Tom Thumb self-inspection) ---
@@ -760,6 +928,20 @@ export default function App() {
     setTick(8);
   };
 
+  const startTour = () => {
+    setTourStep(0);
+    setTab(TOUR_STEPS[0].tab);
+  };
+
+  const goToTourStep = (index) => {
+    if (index < 0 || index >= TOUR_STEPS.length) {
+      setTourStep(null);
+      return;
+    }
+    setTourStep(index);
+    setTab(TOUR_STEPS[index].tab);
+  };
+
   return (
     <main>
       <header className="hero">
@@ -792,6 +974,16 @@ export default function App() {
 
         <button
           type="button"
+          className="help-button tour-button"
+          onClick={startTour}
+          aria-label="Avvia il tour guidato dell'applicazione"
+        >
+          <span aria-hidden="true">➔</span>
+          Tour guidato
+        </button>
+
+        <button
+          type="button"
           className="help-button"
           onClick={() => setHelpOpen(true)}
           aria-label={`Apri la guida della sezione ${tab}`}
@@ -800,6 +992,15 @@ export default function App() {
           Spiegazione
         </button>
       </nav>
+
+      {tourStep !== null ? (
+        <TourPanel
+          stepIndex={tourStep}
+          onNext={() => goToTourStep(tourStep + 1)}
+          onPrev={() => goToTourStep(tourStep - 1)}
+          onClose={() => setTourStep(null)}
+        />
+      ) : null}
 
       <section className="toolbar" aria-label="Controlli del simulatore">
         <div className="toolbar-actions">
@@ -1650,8 +1851,21 @@ export default function App() {
               <Matrix matrix={selectedGeneration.genome} showCoordinates />
             </Card>
 
-            <Card title="Posizione PF8 della generazione" className="wide">
-              <PF8Grid counts={db.pf8.counts} active={selectedGeneration.cell.pf8} />
+            <Card
+              title="Percorso PF8 della lineage"
+              subtitle="Ogni generazione calcolata lascia un segno; il riquadro dorato è la generazione selezionata sopra."
+              className="wide"
+            >
+              <PF8Grid
+                counts={db.pf8.counts}
+                active={selectedGeneration.cell.pf8}
+                trail={lineage.map((g) => ({
+                  row: g.cell.pf8.row,
+                  col: g.cell.pf8.col,
+                  generation: g.generation,
+                  isZeroState: g.isZeroState,
+                }))}
+              />
             </Card>
           </div>
         </>

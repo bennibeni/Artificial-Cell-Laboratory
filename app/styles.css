@@ -467,14 +467,15 @@ thead {
 }
 
 .pf8-grid div {
+  position: relative;
   display: flex;
   min-height: 66px;
   flex-direction: column;
   justify-content: space-between;
   padding: 7px;
   border-radius: 9px;
-  color: white;
-  background: rgb(29 98 101 / var(--density));
+  color: #10151a;
+  background: rgb(var(--hue, 29 98 101) / var(--density));
 }
 
 .pf8-grid div.selected {
@@ -484,8 +485,69 @@ thead {
   box-shadow: 0 8px 18px rgb(240 171 53 / 20%);
 }
 
+.pf8-grid div.on-trail:not(.selected) {
+  outline: 2px dashed rgb(16 21 26 / 45%);
+  outline-offset: 1px;
+}
+
+.pf8-trail-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  padding: 1px 5px;
+  border-radius: 999px;
+  color: #173f42;
+  background: #f0ab35;
+  font-size: 0.6rem;
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+.pf8-grid div.selected .pf8-trail-badge {
+  color: #173f42;
+  background: #fff2d9;
+}
+
 .pf8-grid span {
-  font-size: 0.68rem;
+  font-size: 0.86rem;
+  font-weight: 800;
+  color: #10151a;
+}
+
+.pf8-grid-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
+  padding: 10px 5px 2px;
+  color: #567172;
+  font-size: 0.78rem;
+}
+
+.pf8-legend-item {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.pf8-legend-swatch {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}
+
+.pf8-legend-swatch.female {
+  background: rgb(220 38 38 / 0.85);
+}
+
+.pf8-legend-swatch.male {
+  background: rgb(37 99 235 / 0.85);
+}
+
+.pf8-legend-note {
+  color: #7c9192;
+  font-style: italic;
 }
 
 .phenotype {
@@ -748,6 +810,148 @@ body.modal-open {
 
   .help-modal-footer {
     padding: 0 20px 20px;
+  }
+}
+
+/* Tour guidato: pannello fisso non invasivo (niente backdrop), così si
+   può continuare a interagire con il tab sottostante mentre si legge. */
+.tabs .tour-button {
+  margin-left: 12px;
+  color: white;
+  background: #1d6265;
+  border-color: #1d6265;
+}
+
+.tabs .tour-button span {
+  background: rgb(255 255 255 / 22%);
+}
+
+.tabs .tour-button:hover {
+  background: #17494b;
+  box-shadow: 0 5px 14px rgb(29 98 101 / 30%);
+}
+
+@media (max-width: 760px) {
+  .tabs .tour-button {
+    margin-left: 0;
+  }
+}
+
+.tour-panel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  padding: 16px 20px;
+  border: 1px solid #d3e1e0;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #f3f9f8 0%, #e7f2f1 100%);
+  box-shadow: 0 10px 26px rgb(23 63 66 / 10%);
+}
+
+.tour-panel-text {
+  min-width: 0;
+  flex: 1 1 320px;
+}
+
+.tour-kicker {
+  margin: 0 0 4px;
+  color: #567172;
+  font-size: 0.68rem;
+  font-weight: 850;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.tour-panel-description {
+  margin: 0;
+  color: #344b4d;
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.tour-panel-controls {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 14px;
+  align-items: center;
+}
+
+.tour-panel-progress {
+  display: flex;
+  gap: 5px;
+}
+
+.tour-panel-progress span {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: #c6dcda;
+}
+
+.tour-panel-progress span.active {
+  background: #1d6265;
+}
+
+.tour-panel-buttons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.tour-panel-buttons button {
+  border: 1px solid #c9dcda;
+  border-radius: 10px;
+  padding: 8px 14px;
+  color: #244f51;
+  background: white;
+  font-weight: 800;
+  font-size: 0.86rem;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.tour-panel-buttons button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.tour-panel-buttons button.primary {
+  border-color: #1d6265;
+  color: white;
+  background: #1d6265;
+  box-shadow: 0 6px 16px rgb(29 98 101 / 22%);
+}
+
+.tour-panel-buttons .modal-close {
+  width: 30px;
+  height: 30px;
+  font-size: 1.1rem;
+}
+
+@media (max-width: 760px) {
+  .tour-panel {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .tour-panel-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .tour-panel-buttons {
+    justify-content: space-between;
+  }
+
+  .tour-panel-buttons button {
+    flex: 1;
+  }
+
+  .tour-panel-buttons .modal-close {
+    flex: 0 0 auto;
   }
 }
 
