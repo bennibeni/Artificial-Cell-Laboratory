@@ -21,8 +21,8 @@ export const phenotypeAxes = {
     { key: "ricci", label: "Capelli ricci", icon: "🌀" },
   ],
   occhi: [
-    { key: "marroni", label: "Occhi marroni", icon: "🟤" },
-    { key: "verdi", label: "Occhi verdi", icon: "🟢" },
+    { key: "marroni", label: "Occhi marroni", icon: "🌰" },
+    { key: "verdi", label: "Occhi verdi", icon: "🍃" },
   ],
   lattosio: [
     {
@@ -37,7 +37,7 @@ export const phenotypeAxes = {
       label: "Tollerante",
       culturalModel: "Allevatrice-pastorale",
       description: "Lattasi persistente.",
-      icon: "🥛",
+      icon: "🐐",
     },
   ],
   visione: [
@@ -47,10 +47,7 @@ export const phenotypeAxes = {
 };
 
 export function normalizePF8Code(code) {
-  return String(code)
-    .replace(/[^01]/g, "")
-    .padEnd(6, "0")
-    .slice(0, 6);
+  return String(code).replace(/[^01]/g, "").padEnd(6, "0").slice(0, 6);
 }
 
 export function buildPF8Profile(database, code) {
@@ -58,7 +55,9 @@ export function buildPF8Profile(database, code) {
   const count = database.pf8.byCode[normalizedCode] ?? 0;
   const total = database.genomeSpace.valid || database.statistics.total;
   const probability = total ? count / total : 0;
-  const ordered = Object.entries(database.pf8.byCode).sort((a, b) => b[1] - a[1]);
+  const ordered = Object.entries(database.pf8.byCode).sort(
+    (a, b) => b[1] - a[1],
+  );
 
   return {
     code: normalizedCode,
@@ -68,7 +67,8 @@ export function buildPF8Profile(database, code) {
     rank: ordered.findIndex(([candidate]) => candidate === normalizedCode) + 1,
     mean: database.statistics.mean,
     zScore: database.statistics.standardDeviation
-      ? (count - database.statistics.mean) / database.statistics.standardDeviation
+      ? (count - database.statistics.mean) /
+        database.statistics.standardDeviation
       : 0,
     max: database.statistics.max,
     min: database.statistics.min,

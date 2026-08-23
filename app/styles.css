@@ -951,12 +951,14 @@ body.modal-open {
   border: 1px solid rgb(29 98 101 / 8%);
 }
 
-.phenotype-avatar {
+.phenotype-avatar-photo {
   position: relative;
   z-index: 1;
-  width: min(100%, 330px);
-  height: auto;
-  overflow: visible;
+  width: min(100%, 280px);
+  aspect-ratio: 21 / 20;
+  border-radius: 28px;
+  object-fit: cover;
+  box-shadow: 0 14px 30px rgb(23 32 42 / 16%);
 }
 
 .phenotype-avatar-card figcaption {
@@ -1119,8 +1121,8 @@ body.modal-open {
     min-height: 330px;
   }
 
-  .phenotype-avatar {
-    width: min(78%, 310px);
+  .phenotype-avatar-photo {
+    width: min(78%, 260px);
   }
 }
 

@@ -1,6 +1,11 @@
 export const TOTAL_LOCI = 8;
 export const SHIFT_K = 2;
-export const DEFAULT_GENOME_4X4 = [[1,0,1,0],[1,1,0,1],[0,0,1,1],[1,0,0,1]];
+// Genoma di default: scelto perché produce a tick=8 il codice PF8
+// "010000" (riga 2, colonna 0 nella griglia PF8) — Femmina, Pelle
+// scura, Capelli lisci, Occhi marroni, Lattosio non tollerante, Vista
+// normale. Solo il locus L1 (regione genetica 2, allele A) è acceso;
+// tutto il resto del genoma è a zero.
+export const DEFAULT_GENOME_4X4 = [[0,0,0,0],[1,0,0,0],[0,0,0,0],[0,0,0,0]];
 export const GENETIC_REGIONS = [
   "Regione genetica 1",
   "Regione genetica 2",
